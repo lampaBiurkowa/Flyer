@@ -1,0 +1,17 @@
+.vscode
+FlyClient/.import
+FlyClient/.mono
+FlyClient/addons
+FlyClient/Resources
+*.import
+FlyClient/icon.png
+FlyClientCore/bin
+FlyClientCore/obj
+FlyClientTests/obj
+FlyServer/bin
+FlyServer/obj
+FlyServerCore/bin
+FlyServerCore/obj
+FlyServerAPI/bin
+FlyServerAPI/obj
+*WeatherForecast*
