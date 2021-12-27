@@ -62,7 +62,7 @@ public class ChooseAircraft : ViewportContainer
 	void onSelectButtonPressesd()
 	{
 		disconnectSignals();
-		GetTree().ChangeScene("Scenes/UI/Terrains/Terrain1.tscn");
+		GetTree().ChangeScene("Scenes/Terrains/Terrain1.tscn");
 	}
 
 	void onLeftButtonPressesd()

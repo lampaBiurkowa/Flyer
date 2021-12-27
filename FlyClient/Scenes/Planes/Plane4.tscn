@@ -3,3 +3,8 @@
 [ext_resource path="res://Resources/Planes/Plane4/plane4.dae" type="PackedScene" id=3]
 
 [node name="Plane" instance=ExtResource( 3 )]
+
+[node name="Camera" type="Camera" parent="GLIDER" index="4"]
+transform = Transform( 0.277782, -0.164805, 0.946402, 0, 0.985174, 0.171556, -0.960644, -0.0476553, 0.273664, 12.3314, 2.0115, 3.41081 )
+fov = 28.5001
+near = 0.1
