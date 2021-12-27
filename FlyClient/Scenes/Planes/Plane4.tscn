@@ -2,4 +2,4 @@
 
 [ext_resource path="res://Resources/Planes/Plane4/plane4.dae" type="PackedScene" id=3]
 
-[node name="plane4" instance=ExtResource( 3 )]
+[node name="Plane" instance=ExtResource( 3 )]

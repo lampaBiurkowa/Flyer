@@ -4,7 +4,7 @@
 
 [node name="Plane3" type="MeshInstance"]
 
-[node name="plane3" type="MeshInstance" parent="."]
+[node name="Plane" type="MeshInstance" parent="."]
 transform = Transform( 1, 0, 0, 0, 1.19249e-08, 1, 0, -1, 1.19249e-08, 0, 0, 0 )
 mesh = ExtResource( 1 )
 material/0 = null

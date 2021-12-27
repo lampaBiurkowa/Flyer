@@ -14,12 +14,19 @@ public class MainMenu : Panel
 	{
 		playButton = (Button)GetNode("Button");
 	}
+
+	void disconnectSignals()
+	{
+		playButton.Disconnect("pressed", this, nameof(onPlayButtonPressesd));
+	}
 	void connectSignals()
 	{
-		blueTeamButton.Connect("pressed", this, nameof(onPlayButtonPressesd));
+		playButton.Connect("pressed", this, nameof(onPlayButtonPressesd));
 	}
 
 	void onPlayButtonPressesd()
 	{
+		disconnectSignals();
+		GetTree().ChangeScene("Scenes/UI/ChooseAircraft.tscn");
 	}
 }
