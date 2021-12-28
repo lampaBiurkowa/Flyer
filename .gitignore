@@ -14,4 +14,6 @@ FlyServerCore/bin
 FlyServerCore/obj
 FlyServerAPI/bin
 FlyServerAPI/obj
+FlyShared/bin
+FlyShared/obj
 *WeatherForecast*
