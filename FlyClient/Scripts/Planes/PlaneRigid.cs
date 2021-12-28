@@ -7,10 +7,8 @@ public class PlaneRigid : RigidBody
 	PlaneBase plane;
 	PlanePhysics planePhysics;
 	WindPhysics windPhysics;
-	Label altitude;
-	Label speed;
-	Label lift;
-	Label weight;
+	Cockpit cockpit;
+
 	public override void _Ready()
 	{
 		loadComponents();
@@ -23,39 +21,36 @@ public class PlaneRigid : RigidBody
 	void loadComponents()
 	{
 		plane = (PlaneBase)GetChild(0);
-		liftLabel = (Label)GetNode("../../../Lift");
-		speedLabel = (Label)GetNode("../../../Speed");
-		altitudeLabel = (Label)GetNode("../../../Altitude");
-		weightLabel = (Label)GetNode("../../../Weight");
+		cockpit = (Cockpit)GetNode("../../../Cockpit");
 	}
 	
 	public override void _IntegrateForces(PhysicsDirectBodyState state)
 	{
-		handleInput();
-
 		float delta = state.Step;
-		float weight = state.TotalGravity.y;
-		float lift = getLift(delta, weight);
+		handleInput(state, delta);
 
-		state.ApplyCentralImpulse(new Vector3(0, liftValue, 0));
+		float weight = state.TotalGravity.y;
+		float lift = getLift(state, delta, weight);
+
+		state.ApplyCentralImpulse(new Vector3(0, lift, 0));
 		
-		speedLabel.Text = $"{Math.Sqrt(Math.Pow(state.LinearVelocity.x, 2) + Math.Pow(state.LinearVelocity.z, 2))}";
-		liftLabel.Text = $"{liftValue}";
-		altitudeLabel.Text = $"{Translation.y * 2}";
-		weightLabel.Text = $"{weight * delta}";
-		GD.Print($"spid {state.LinearVelocity} rotation {RotationDegrees} pos {Translation} lift {liftValue}");
+		cockpit.SetSpeed((float)Math.Sqrt(Math.Pow(state.LinearVelocity.x, 2) + Math.Pow(state.LinearVelocity.z, 2)));
+		cockpit.SetLift(lift);
+		cockpit.SetAltitude((int)Translation.y * 2);
+		cockpit.SetWeight(weight * delta);
+		GD.Print($"spid {state.LinearVelocity} rotation {RotationDegrees} pos {Translation} lift {lift}");
 
 		state.IntegrateForces();
 	}
 
-	void handleInput()
+	void handleInput(PhysicsDirectBodyState state, float delta)
 	{
 		const float IMPULSE = 1;
 		if (Input.IsActionJustPressed("ui_up"))
 			state.ApplyCentralImpulse(new Vector3(-IMPULSE, 0, 0) * delta);
 	}
 
-	float getLift(float delta, float weight)
+	float getLift(PhysicsDirectBodyState state, float delta, float weight)
 	{
 		GeoLib.Vector3 velocity = new GeoLib.Vector3(state.LinearVelocity.x, state.LinearVelocity.y, state.LinearVelocity.z);
 		GeoLib.Vector3 rotation = new GeoLib.Vector3(RotationDegrees.x, RotationDegrees.y, RotationDegrees.z);
