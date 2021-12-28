@@ -46,5 +46,10 @@ namespace ClientCore
             LeftWing = new Wing(data.Left, data.Wing);
             RightWing = new Wing(data.Right, data.Wing);
         }
+
+        public void Update(float delta)
+        {
+            Elevator.Update(delta);
+        }
     }
 }

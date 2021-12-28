@@ -8,7 +8,7 @@ namespace ClientCore.Physics.PlaneParts
     {
         GenericSurfaceData data;
 
-        public bool Enabled {get; private set;} = false;
+        public bool Enabled {get; set;} = false;
 
         public Slat(Vector2 offset, GenericSurfaceData data) : base(offset)
         {

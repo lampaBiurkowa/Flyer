@@ -31,14 +31,15 @@ public class PlaneRigid : RigidBody
 		GenericSurfaceData wingSurface = new GenericSurfaceData(1, 50, 0);
 		GenericSurfaceData slatSurface = new GenericSurfaceData(1, 5, 0);
 		int length = 25;
-		//max,fuel ,restart,surface
-		EngineData engine = new EngineData(100, 1, 8000, 1);
+		//max,fuel ,restart,surface,acc,dec
+		EngineData engine = new EngineData(50, 1, 8000, 1,0.5f, 1.5f);
 		List<Tuple<EngineData, Localization>> engines = new List<Tuple<EngineData, Localization>>();
 		engines.Add(new Tuple<EngineData, Localization>(engine, Localization.LEFT));
 		engines.Add(new Tuple<EngineData, Localization>(engine, Localization.RIGHT));
 		planeData = new PlaneData(aileronSurface, elevatorSurface, flapSurface, rudderSurface, slatSurface, wingSurface, engines, length);
 		aerodynamics = new AerodynamicsData(planeData);
 		//
+		ApplyCentralImpulse(new Vector3(0, 0, -0.001f));
 	}
 
 	void loadComponents()
@@ -50,8 +51,6 @@ public class PlaneRigid : RigidBody
 	public override void _IntegrateForces(PhysicsDirectBodyState state)
 	{
 		float delta = state.Step;
-		handleInput(state, delta);
-
 		float weight = state.TotalGravity.y;
 		
 		GeoLib.Vector3 velocity = new GeoLib.Vector3(state.LinearVelocity.x, state.LinearVelocity.y, state.LinearVelocity.z);
@@ -60,12 +59,13 @@ public class PlaneRigid : RigidBody
 		FlightData flightData = new FlightData(translation, rotation, velocity);
 		planePhysics = new PlanePhysics(flightData, planeData, aerodynamics);
 		planePhysics.Update(flightData);
+
 		float leftLift = planePhysics.GetLeftLift(windPhysics);
 		float rightLift = planePhysics.GetRightLift(windPhysics);
 		float totalLift = leftLift + rightLift;
 		float leftLiftPercentage = (float)GeoLib.GameMath.GetPercentage(leftLift, rightLift);
 
-		const float OVERLIFT = 1.4f;
+		const float OVERLIFT = 1.9f;
 		if (state.LinearVelocity.y >= 0 && totalLift > -weight * delta)
 			totalLift = -weight * delta;
 		else if (totalLift > -weight * delta * OVERLIFT)
@@ -79,10 +79,17 @@ public class PlaneRigid : RigidBody
 		Vector3 tail = new Vector3((float)planeData.Tail.X, 0, (float)planeData.Tail.Y);
 		state.ApplyImpulse(left, new Vector3(0, leftLift, 0));
 		state.ApplyImpulse(right, new Vector3(0, rightLift, 0));
+
+		List<float> thrusts = new List<float>();
+		foreach (var e in aerodynamics.Engines)
+			thrusts.Add(e.GetThrust(delta, windPhysics.GetDensity(flightData.Altitude)));
+		cockpit.SetEngines(thrusts);
+		state.ApplyImpulse(left, GlobalTransform.basis.z * thrusts[0] * delta * -1);
+		state.ApplyImpulse(right, GlobalTransform.basis.z * thrusts[1] * delta * -1);
 		
 		cockpit.SetSpeed((float)Math.Sqrt(Math.Pow(state.LinearVelocity.x, 2) + Math.Pow(state.LinearVelocity.z, 2)));
 		cockpit.SetLift(totalLift, leftLift, rightLift);
-		cockpit.SetAltitude((int)Translation.y * 2);
+		cockpit.SetAltitude(flightData.Altitude);
 		cockpit.SetWeight(weight * delta);
 
 		Tuple<float, float> aLift = new Tuple<float, float>(planePhysics.GetPartLift(aerodynamics.LeftAileron, windPhysics), planePhysics.GetPartLift(aerodynamics.RightAileron, windPhysics));
@@ -115,23 +122,57 @@ public class PlaneRigid : RigidBody
 		float eSide = planePhysics.GetPartSide(aerodynamics.Elevator, windPhysics);
 		cockpit.SetElevator(eLift, eDrag, eSide);
 
+		if (Input.IsActionPressed("thrustUp"))
+			foreach (var e in aerodynamics.Engines)
+				e.Update(true, delta);
+		else if (Input.IsActionPressed("thrustDown"))
+			foreach (var e in aerodynamics.Engines)
+				e.Update(false, delta);
 
-		//GD.Print($"spid {state.LinearVelocity} rotation {RotationDegrees} pos {Translation} lift {totalLift} i {wLift.Item1} {wLift.Item2}");
+		if (Input.IsActionPressed("pitchUp"))
+			aerodynamics.Elevator.Move(true);
+		else if (Input.IsActionPressed("pitchDown"))
+			aerodynamics.Elevator.Move(false);
 
+		if (Input.IsActionJustPressed("slats"))
+		{
+			if (Input.IsActionPressed("l"))
+				aerodynamics.LeftSlat.Enabled = !aerodynamics.LeftSlat.Enabled;
+			if (Input.IsActionPressed("r"))
+				aerodynamics.RightSlat.Enabled = !aerodynamics.RightSlat.Enabled;
+			else
+			{
+				aerodynamics.LeftSlat.Enabled = !aerodynamics.LeftSlat.Enabled;
+				aerodynamics.RightSlat.Enabled = !aerodynamics.RightSlat.Enabled;
+			}
+		}
+
+		if (Input.IsActionJustPressed("rollLeft"))
+		{
+			aerodynamics.LeftAileron.AngleDegrees = 30;
+			aerodynamics.RightAileron.AngleDegrees = -30;
+		}
+		else if (Input.IsActionJustPressed("rollRight"))
+		{
+			aerodynamics.LeftAileron.AngleDegrees = -30;
+			aerodynamics.RightAileron.AngleDegrees = +30;
+		}
+
+		aerodynamics.Update(delta);
 		state.IntegrateForces();
 	}
 
 	void handleInput(PhysicsDirectBodyState state, float delta)
 	{
 		const float IMPULSE = 0.2f;
-		if (Input.IsActionPressed("ui_up"))
-			state.ApplyCentralImpulse(GlobalTransform.basis.z * IMPULSE * delta * -1);
-		if (Input.IsActionPressed("ui_down"))
+
+		//	state.ApplyCentralImpulse(GlobalTransform.basis.z * IMPULSE * delta * -1);
+		/*if (Input.IsActionPressed("ui_down"))
 			state.ApplyCentralImpulse(GlobalTransform.basis.z * IMPULSE * delta);
 		if (Input.IsActionPressed("ui_left"))
 			state.ApplyCentralImpulse(GlobalTransform.basis.x * IMPULSE * delta * -1);
 		if (Input.IsActionPressed("ui_right"))
-			state.ApplyCentralImpulse(GlobalTransform.basis.x * IMPULSE * delta);
+			state.ApplyCentralImpulse(GlobalTransform.basis.x * IMPULSE * delta);*/
 	}
 }
 

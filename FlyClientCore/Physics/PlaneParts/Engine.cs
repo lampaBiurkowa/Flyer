@@ -13,18 +13,23 @@ namespace ClientCore.Physics.PlaneParts
             Data = data;
         }
 
-        public void Update(float speed)
+        public void Update(bool thrustUp, float delta)
         {
-            if (speed < Data.MaxSpeed)
-                CurrentSpeed = speed;
+            if (thrustUp && CurrentSpeed < Data.MaxSpeed)
+                CurrentSpeed += Data.Acceleration * delta;
+            else if (!thrustUp && CurrentSpeed > 0)
+                CurrentSpeed -= Data.Decceleration * delta;
+
+            if (CurrentSpeed > Data.MaxSpeed)
+                CurrentSpeed = Data.MaxSpeed;
+            if (CurrentSpeed < 0)
+                CurrentSpeed = 0;
         }
 
-        public float GetThrustAndUpdate(float delta, float speed, float airDensity)
-        {
-            float mass = Data.Surface * airDensity * speed;
-            float acceleration = (speed - CurrentSpeed) / delta;
-            CurrentSpeed = speed;
-            return mass * acceleration;
+        public float GetThrust(float delta, float airDensity)
+        { //-windSpeed
+            float flowMass = Data.Surface * airDensity * CurrentSpeed;
+            return flowMass * CurrentSpeed;
         }
     }
 }

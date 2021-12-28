@@ -74,22 +74,5 @@ namespace ClientCore.Physics
             rightLift += GetPartLift(AerodynamicsData.RightWing, wind);
             return rightLift;
         }
-
-        /*public float GetLift(WindPhysics wind, FlightData flightData)
-        {
-            Direction = flightData.Speed / 100;
-            
-            float wingSurface = (float)(Math.Cos(GameMath.DegToRad(0)) * WingSize.X * WingSize.Y);
-            int height = (int)(flightData.Position.Y * 2);
-            float density = wind.GetDensity(height);
-            float attackAngle = 1;//(float)(GameMath.DegToRad(Math.Abs(Rotation.X - 90)));
-            float speedAgainst = (float)wind.GetRelativeSpeedAdjusted(this).Y;
-            float forwardSpeed = (float)(Math.Sqrt(Math.Pow(flightData.Speed.X, 2) + Math.Pow(flightData.Speed.Z, 2)));
-            float totalSpeed = Math.Abs(forwardSpeed - speedAgainst);
-            
-            float baseLift = (float)(density * (Math.Pow(totalSpeed, 2) / 2) * wingSurface * Math.Pow(Math.PI, 2) * attackAngle);
-            return baseLift;
-            //return new Vector2(baseLift, baseLift);
-        }*/
     }
 }

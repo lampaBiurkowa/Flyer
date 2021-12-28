@@ -5,17 +5,17 @@ namespace ClientCore
     public class FlightData
     {
         const float ALTITUDE_FACTOR = 2;
-        public Vector3 Position {get; private set;}
-        private Vector3 rotation;
-        public Vector3 Rotation
+        private Vector3 position;
+        public Vector3 Position
         {
-            get => rotation;
+            get => position;
             set
             {
-                rotation = value;
-                Altitude = (int)(rotation.Y * ALTITUDE_FACTOR);
+                position = value;
+                Altitude = (int)(position.Y * ALTITUDE_FACTOR);
             }
         }
+        public Vector3 Rotation {get; private set;}
         public Vector3 Speed {get; private set;}
         public int Altitude {get; private set;}
         
