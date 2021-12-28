@@ -17,6 +17,8 @@ namespace ClientCore.Physics
             return (float)line.ValueAt(height);
         }
 
+        public Vector3 GetSpeed() => Speed; //??
+
         public Vector2 GetRelativeSpeedAdjusted(IMoveable moveable)
         {
             float secondPosFactor = 1.1f; //can be set to anything close to 1.0f (but greater)

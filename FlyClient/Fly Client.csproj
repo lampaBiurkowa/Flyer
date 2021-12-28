@@ -4,22 +4,26 @@
     <RootNamespace>FlyClient</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="GodotSharp">
-      <Private>False</Private>
-      <HintPath>$(ProjectDir)/.mono/assemblies/$(ApiConfiguration)/GodotSharp.dll</HintPath>
-    </Reference>
-    <Reference Include="GodotSharpEditor" Condition=" '$(Configuration)' == 'Debug' ">
-      <Private>False</Private>
-      <HintPath>$(ProjectDir)/.mono/assemblies/$(ApiConfiguration)/GodotSharpEditor.dll</HintPath>
-    </Reference>
     <Reference Include="ClientCore">
       <HintPath>../FlyClientCore/bin/Debug/netstandard2.0/FlyClientCore.dll</HintPath>
     </Reference>
     <Reference Include="GeoLib">
       <HintPath>/home/julian/ngruza1/C#/GeoLib/GeoLib/GeoLib/bin/Debug/netcoreapp2.2/GeoLib.dll</HintPath>
     </Reference>
+    <Reference Include="FlyShared">
+      <HintPath>../FlyShared/bin/Debug/netstandard2.0/FlyShared.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="GodotSharp">
+      <Private>False</Private>
+      <HintPath>.mono/assemblies/Debug/GodotSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="GodotSharpEditor" Condition=" '$(Configuration)' == 'Debug' ">
+      <Private>False</Private>
+      <HintPath>.mono/assemblies/Debug/GodotSharpEditor.dll</HintPath>
+    </Reference>
   </ItemGroup>
+  <!--$(ApiConfiguration) ProjectDir-->
   <ItemGroup>
     <Compile Include="Scripts\*" />
   </ItemGroup>

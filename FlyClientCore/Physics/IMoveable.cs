@@ -5,6 +5,6 @@ namespace ClientCore.Physics
     public interface IMoveable
     {
         Vector3 Direction {get;}
-        Vector3 Speed {get;}
+        Vector3 GetSpeed();
     }
 }

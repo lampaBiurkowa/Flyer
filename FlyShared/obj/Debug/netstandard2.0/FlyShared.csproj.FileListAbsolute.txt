@@ -1,0 +1,13 @@
+/home/julian/ngruza1/C#/fly/FlyShared/bin/Debug/netstandard2.0/FlyShared.deps.json
+/home/julian/ngruza1/C#/fly/FlyShared/bin/Debug/netstandard2.0/FlyShared.dll
+/home/julian/ngruza1/C#/fly/FlyShared/bin/Debug/netstandard2.0/FlyShared.pdb
+/home/julian/ngruza1/C#/fly/FlyShared/bin/Debug/netstandard2.0/GeoLib.dll
+/home/julian/ngruza1/C#/fly/FlyShared/bin/Debug/netstandard2.0/GeoLib.pdb
+/home/julian/ngruza1/C#/fly/FlyShared/obj/Debug/netstandard2.0/FlyShared.csproj.AssemblyReference.cache
+/home/julian/ngruza1/C#/fly/FlyShared/obj/Debug/netstandard2.0/FlyShared.GeneratedMSBuildEditorConfig.editorconfig
+/home/julian/ngruza1/C#/fly/FlyShared/obj/Debug/netstandard2.0/FlyShared.AssemblyInfoInputs.cache
+/home/julian/ngruza1/C#/fly/FlyShared/obj/Debug/netstandard2.0/FlyShared.AssemblyInfo.cs
+/home/julian/ngruza1/C#/fly/FlyShared/obj/Debug/netstandard2.0/FlyShared.csproj.CoreCompileInputs.cache
+/home/julian/ngruza1/C#/fly/FlyShared/obj/Debug/netstandard2.0/FlyShared.csproj.CopyComplete
+/home/julian/ngruza1/C#/fly/FlyShared/obj/Debug/netstandard2.0/FlyShared.dll
+/home/julian/ngruza1/C#/fly/FlyShared/obj/Debug/netstandard2.0/FlyShared.pdb

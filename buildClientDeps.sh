@@ -1,0 +1,2 @@
+dotnet build FlyShared
+dotnet build FlyClientCore
