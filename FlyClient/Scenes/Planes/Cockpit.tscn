@@ -233,8 +233,8 @@ custom_colors/font_color = Color( 1, 0, 0, 1 )
 custom_fonts/font = SubResource( 10 )
 
 [node name="AH" type="Sprite" parent="."]
-position = Vector2( 1250, 650 )
-scale = Vector2( 0.25, 0.25 )
+position = Vector2( 1230, 630 )
+scale = Vector2( 0.4, 0.4 )
 texture = ExtResource( 3 )
 
 [node name="AHControl" type="Sprite" parent="AH"]

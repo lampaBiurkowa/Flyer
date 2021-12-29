@@ -30,9 +30,30 @@ namespace ClientCore.Physics.PlaneParts
             }
         }
 
+        float accelerationDegrees = 0;
+        const float STEP = 0.5f;
+        const float MAX_ANGLE = 30f;
+
         public Aileron(Vector2 offset, GenericSurfaceData data) : base(offset)
         {
             this.data = data;
+        }
+
+        public void Move(bool increaseAngle)
+        {
+            if (increaseAngle)
+                accelerationDegrees = STEP;
+            else
+                accelerationDegrees = -STEP;
+        }
+
+        public void Update(float delta)
+        {
+            AngleDegrees = AngleDegrees + accelerationDegrees * delta;
+            if (AngleDegrees > MAX_ANGLE)
+                AngleDegrees = MAX_ANGLE;
+            if (AngleDegrees < -MAX_ANGLE)
+                AngleDegrees = -MAX_ANGLE;
         }
 
         public float GetLiftSurface() => data.LiftSurface * (float)Math.Sin(angleRadians);

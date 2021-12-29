@@ -24,12 +24,12 @@ public class PlaneRigid : RigidBody
 		windPhysics.Speed = new GeoLib.Vector3(5, 0, 0);
 
 		//temp /drag,lift,side
-		GenericSurfaceData aileronSurface = new GenericSurfaceData(0, 10, 0);
+		GenericSurfaceData aileronSurface = new GenericSurfaceData(0, 3, 0);
 		GenericSurfaceData elevatorSurface = new GenericSurfaceData(0, 1, 0);
-		GenericSurfaceData flapSurface = new GenericSurfaceData(0, 5, 0);
+		GenericSurfaceData flapSurface = new GenericSurfaceData(0, 1, 0);
 		GenericSurfaceData rudderSurface = new GenericSurfaceData(0, 0, 10);
 		GenericSurfaceData wingSurface = new GenericSurfaceData(1, 50, 0);
-		GenericSurfaceData slatSurface = new GenericSurfaceData(1, 5, 0);
+		GenericSurfaceData slatSurface = new GenericSurfaceData(1, 1, 0);
 		int length = 25;
 		//max,fuel ,restart,surface,acc,dec
 		EngineData engine = new EngineData(50, 1, 8000, 1,0.5f, 1.5f);
@@ -138,6 +138,19 @@ public class PlaneRigid : RigidBody
 			aerodynamics.Elevator.Move(true);
 		else if (Input.IsActionPressed("pitchDown"))
 			aerodynamics.Elevator.Move(false);
+		else
+			aerodynamics.Elevator.Level();
+
+		if (Input.IsActionJustPressed("rollLeft"))
+		{
+			aerodynamics.LeftAileron.Move(true);
+			aerodynamics.RightAileron.Move(false);
+		}
+		else if (Input.IsActionJustPressed("rollRight"))
+		{
+			aerodynamics.LeftAileron.Move(false);
+			aerodynamics.RightAileron.Move(true);
+		}
 
 		if (Input.IsActionJustPressed("slats"))
 		{
@@ -152,32 +165,8 @@ public class PlaneRigid : RigidBody
 			}
 		}
 
-		if (Input.IsActionJustPressed("rollLeft"))
-		{
-			aerodynamics.LeftAileron.AngleDegrees = 30;
-			aerodynamics.RightAileron.AngleDegrees = -30;
-		}
-		else if (Input.IsActionJustPressed("rollRight"))
-		{
-			aerodynamics.LeftAileron.AngleDegrees = -30;
-			aerodynamics.RightAileron.AngleDegrees = +30;
-		}
-
 		aerodynamics.Update(delta);
 		state.IntegrateForces();
-	}
-
-	void handleInput(PhysicsDirectBodyState state, float delta)
-	{
-		const float IMPULSE = 0.2f;
-
-		//	state.ApplyCentralImpulse(GlobalTransform.basis.z * IMPULSE * delta * -1);
-		/*if (Input.IsActionPressed("ui_down"))
-			state.ApplyCentralImpulse(GlobalTransform.basis.z * IMPULSE * delta);
-		if (Input.IsActionPressed("ui_left"))
-			state.ApplyCentralImpulse(GlobalTransform.basis.x * IMPULSE * delta * -1);
-		if (Input.IsActionPressed("ui_right"))
-			state.ApplyCentralImpulse(GlobalTransform.basis.x * IMPULSE * delta);*/
 	}
 }
 
