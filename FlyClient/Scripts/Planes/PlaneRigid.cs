@@ -25,7 +25,7 @@ public class PlaneRigid : RigidBody
 
 		//temp /drag,lift,side
 		GenericSurfaceData aileronSurface = new GenericSurfaceData(0, 10, 0);
-		GenericSurfaceData elevatorSurface = new GenericSurfaceData(0, 10, 0);
+		GenericSurfaceData elevatorSurface = new GenericSurfaceData(0, 1, 0);
 		GenericSurfaceData flapSurface = new GenericSurfaceData(0, 5, 0);
 		GenericSurfaceData rudderSurface = new GenericSurfaceData(0, 0, 10);
 		GenericSurfaceData wingSurface = new GenericSurfaceData(1, 50, 0);
@@ -63,6 +63,7 @@ public class PlaneRigid : RigidBody
 		float leftLift = planePhysics.GetLeftLift(windPhysics);
 		float rightLift = planePhysics.GetRightLift(windPhysics);
 		float totalLift = leftLift + rightLift;
+		float originalTotalLift = totalLift;
 		float leftLiftPercentage = (float)GeoLib.GameMath.GetPercentage(leftLift, rightLift);
 
 		const float OVERLIFT = 1.9f;
@@ -71,6 +72,7 @@ public class PlaneRigid : RigidBody
 		else if (totalLift > -weight * delta * OVERLIFT)
 			totalLift = -weight * delta * OVERLIFT;
 
+		float scale = (float)GeoLib.GameMath.GetPercentage(totalLift, originalTotalLift) / 100f;
 		leftLift = (totalLift * leftLiftPercentage) / 100f;
 		rightLift = totalLift - leftLift;
 
@@ -86,6 +88,9 @@ public class PlaneRigid : RigidBody
 		cockpit.SetEngines(thrusts);
 		state.ApplyImpulse(left, GlobalTransform.basis.z * thrusts[0] * delta * -1);
 		state.ApplyImpulse(right, GlobalTransform.basis.z * thrusts[1] * delta * -1);
+
+		float elevatorLift = planePhysics.GetPartLift(aerodynamics.Elevator, windPhysics) * scale;
+		state.ApplyImpulse(tail, new Vector3(0, elevatorLift, 0));
 		
 		cockpit.SetSpeed((float)Math.Sqrt(Math.Pow(state.LinearVelocity.x, 2) + Math.Pow(state.LinearVelocity.z, 2)));
 		cockpit.SetLift(totalLift, leftLift, rightLift);
@@ -117,7 +122,7 @@ public class PlaneRigid : RigidBody
 		float rSide = planePhysics.GetPartSide(aerodynamics.Rudder, windPhysics);
 		cockpit.SetRudder(rLift, rDrag, rSide);
 
-		float eLift = planePhysics.GetPartLift(aerodynamics.Elevator, windPhysics);
+		float eLift = planePhysics.GetPartLift(aerodynamics.Elevator, windPhysics) * scale;
 		float eDrag = planePhysics.GetPartDrag(aerodynamics.Elevator, windPhysics);
 		float eSide = planePhysics.GetPartSide(aerodynamics.Elevator, windPhysics);
 		cockpit.SetElevator(eLift, eDrag, eSide);
@@ -136,9 +141,9 @@ public class PlaneRigid : RigidBody
 
 		if (Input.IsActionJustPressed("slats"))
 		{
-			if (Input.IsActionPressed("l"))
+			if (Input.IsActionPressed("left"))
 				aerodynamics.LeftSlat.Enabled = !aerodynamics.LeftSlat.Enabled;
-			if (Input.IsActionPressed("r"))
+			if (Input.IsActionPressed("right"))
 				aerodynamics.RightSlat.Enabled = !aerodynamics.RightSlat.Enabled;
 			else
 			{

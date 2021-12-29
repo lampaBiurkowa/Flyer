@@ -7,6 +7,7 @@ namespace ClientCore.Physics.PlaneParts
     public class Elevator : Part, IAerodynamic
     {
         GenericSurfaceData data;
+        const float MAX_ANGLE = 30;
 
         private float angleDegrees = 0;
         public float AngleDegrees
@@ -30,7 +31,7 @@ namespace ClientCore.Physics.PlaneParts
             }
         }
 
-        public const float STEP = 0.8f;
+        public const float STEP = 10f;
         float accelerationDegrees = 0;
 
         public Elevator(Vector2 offset, GenericSurfaceData data) : base(offset)
@@ -41,18 +42,18 @@ namespace ClientCore.Physics.PlaneParts
         public void Move(bool pitchUp)
         {
             if (pitchUp)
-                accelerationDegrees += STEP;
+                accelerationDegrees = STEP;
             else
-                accelerationDegrees -= STEP;
+                accelerationDegrees = -STEP;
         }
 
         public void Update(float delta)
         {
             AngleDegrees = AngleDegrees + accelerationDegrees * delta;
-            if (AngleDegrees > 90)
-                AngleDegrees = 90;
-            if (AngleDegrees < -90)
-                AngleDegrees = -90;
+            if (AngleDegrees > MAX_ANGLE)
+                AngleDegrees = MAX_ANGLE;
+            if (AngleDegrees < -MAX_ANGLE)
+                AngleDegrees = -MAX_ANGLE;
         }
 
         public float GetLiftSurface() => data.LiftSurface * (float)(Math.Sin(angleRadians));
