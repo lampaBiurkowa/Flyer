@@ -141,6 +141,42 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
+[node name="PitchText" type="Label" parent="."]
+margin_left = 50.0
+margin_top = 150.0
+margin_right = 154.0
+margin_bottom = 178.0
+custom_colors/font_color = Color( 1, 0, 0, 1 )
+custom_fonts/font = SubResource( 10 )
+text = "Pitch"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="RollText" type="Label" parent="."]
+margin_left = 50.0
+margin_top = 100.0
+margin_right = 154.0
+margin_bottom = 128.0
+custom_colors/font_color = Color( 1, 0, 0, 1 )
+custom_fonts/font = SubResource( 10 )
+text = "Roll"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="YawText" type="Label" parent="."]
+margin_left = 50.0
+margin_top = 50.0
+margin_right = 154.0
+margin_bottom = 78.0
+custom_colors/font_color = Color( 1, 0, 0, 1 )
+custom_fonts/font = SubResource( 10 )
+text = "Yaw"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
 [node name="Lift" type="Label" parent="."]
 margin_left = 160.0
 margin_top = 600.0
@@ -215,6 +251,42 @@ margin_right = 238.0
 margin_bottom = 228.0
 custom_colors/font_color = Color( 1, 0, 0, 1 )
 custom_fonts/font = SubResource( 10 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Pitch" type="Label" parent="."]
+margin_left = 160.0
+margin_top = 150.0
+margin_right = 238.0
+margin_bottom = 178.0
+custom_colors/font_color = Color( 1, 0, 0, 1 )
+custom_fonts/font = SubResource( 10 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Roll" type="Label" parent="."]
+margin_left = 160.0
+margin_top = 100.0
+margin_right = 238.0
+margin_bottom = 128.0
+custom_colors/font_color = Color( 1, 0, 0, 1 )
+custom_fonts/font = SubResource( 10 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Yaw" type="Label" parent="."]
+margin_left = 160.0
+margin_top = 50.0
+margin_right = 238.0
+margin_bottom = 78.0
+custom_colors/font_color = Color( 1, 0, 0, 1 )
+custom_fonts/font = SubResource( 10 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
 [node name="Altitude" type="Label" parent="."]
 margin_left = 160.0
@@ -231,11 +303,16 @@ margin_right = 238.0
 margin_bottom = 728.0
 custom_colors/font_color = Color( 1, 0, 0, 1 )
 custom_fonts/font = SubResource( 10 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
 [node name="AH" type="Sprite" parent="."]
 position = Vector2( 1230, 630 )
 scale = Vector2( 0.4, 0.4 )
+z_index = 1
 texture = ExtResource( 3 )
 
 [node name="AHControl" type="Sprite" parent="AH"]
+z_index = -1
 texture = ExtResource( 2 )

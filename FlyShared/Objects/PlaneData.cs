@@ -19,7 +19,7 @@ namespace Shared.Objects
         public float Length {get; private set;}
 
         public PlaneData(GenericSurfaceData aileron, GenericSurfaceData elevator, GenericSurfaceData flap,
-        GenericSurfaceData slat, GenericSurfaceData wing, GenericSurfaceData rudder,
+        GenericSurfaceData rudder, GenericSurfaceData slat, GenericSurfaceData wing, 
         List<Tuple<EngineData, Localization>> engines, float length)
         {
             Aileron = aileron;
@@ -30,8 +30,8 @@ namespace Shared.Objects
             Wing = wing;
             Engines = engines;
             Length = length;
-            Left = new Vector2(-Wing.LiftSurface / 2, 0);
-            Right = new Vector2(Wing.LiftSurface / 2, 0);
+            Left = new Vector2(Wing.LiftSurface / 2, 0);
+            Right = new Vector2(-Wing.LiftSurface / 2, 0);
             Tail = new Vector2(0, Length);
         }
     }

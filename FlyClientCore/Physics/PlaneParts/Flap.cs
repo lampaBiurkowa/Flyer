@@ -25,8 +25,8 @@ namespace ClientCore.Physics.PlaneParts
             get => angleRadians;
             set
             { 
-                angleDegrees = value;
-                angleRadians = (float)GameMath.DegToRad((double)value);
+                angleDegrees = (float)GameMath.RadToDeg((double)value);
+                angleRadians = value;
             }
         }
 

@@ -32,7 +32,7 @@ public class PlaneRigid : RigidBody
 		GenericSurfaceData slatSurface = new GenericSurfaceData(1, 1, 0);
 		int length = 25;
 		//max,fuel ,restart,surface,acc,dec
-		EngineData engine = new EngineData(50, 1, 8000, 1,0.5f, 1.5f);
+		EngineData engine = new EngineData(1, 1, 8000, 1,0.5f, 1.5f);
 		List<Tuple<EngineData, Localization>> engines = new List<Tuple<EngineData, Localization>>();
 		engines.Add(new Tuple<EngineData, Localization>(engine, Localization.LEFT));
 		engines.Add(new Tuple<EngineData, Localization>(engine, Localization.RIGHT));
@@ -66,7 +66,7 @@ public class PlaneRigid : RigidBody
 		float originalTotalLift = totalLift;
 		float leftLiftPercentage = (float)GeoLib.GameMath.GetPercentage(leftLift, rightLift);
 
-		const float OVERLIFT = 1.9f;
+		const float OVERLIFT = 1f;
 		if (state.LinearVelocity.y >= 0 && totalLift > -weight * delta)
 			totalLift = -weight * delta;
 		else if (totalLift > -weight * delta * OVERLIFT)
@@ -82,12 +82,13 @@ public class PlaneRigid : RigidBody
 		state.ApplyImpulse(left, new Vector3(0, leftLift, 0));
 		state.ApplyImpulse(right, new Vector3(0, rightLift, 0));
 
-		List<float> thrusts = new List<float>();
+		List<Tuple<float, float>> thrusts = new List<Tuple<float, float>>();
 		foreach (var e in aerodynamics.Engines)
-			thrusts.Add(e.GetThrust(delta, windPhysics.GetDensity(flightData.Altitude)));
+			thrusts.Add(new Tuple<float, float>(e.CurrentSpeed, e.GetThrust(delta, windPhysics.GetDensity(flightData.Altitude))));
 		cockpit.SetEngines(thrusts);
-		state.ApplyImpulse(left, GlobalTransform.basis.z * thrusts[0] * delta * -1);
-		state.ApplyImpulse(right, GlobalTransform.basis.z * thrusts[1] * delta * -1);
+
+		state.ApplyImpulse(left, GlobalTransform.basis.z * thrusts[0].Item2 * delta * -1);
+		state.ApplyImpulse(right, GlobalTransform.basis.z * thrusts[1].Item2 * delta * -1);
 
 		float elevatorLift = planePhysics.GetPartLift(aerodynamics.Elevator, windPhysics) * scale;
 		state.ApplyImpulse(tail, new Vector3(0, elevatorLift, 0));
@@ -127,6 +128,10 @@ public class PlaneRigid : RigidBody
 		float eSide = planePhysics.GetPartSide(aerodynamics.Elevator, windPhysics);
 		cockpit.SetElevator(eLift, eDrag, eSide);
 
+		cockpit.SetPitch((float)GeoLib.GameMath.RadToDeg(GlobalTransform.basis.y.z));
+		cockpit.SetRoll((float)GeoLib.GameMath.RadToDeg(GlobalTransform.basis.y.x));
+		cockpit.SetYaw((float)GeoLib.GameMath.RadToDeg(GlobalTransform.basis.x.z));//z.y z.x X:x.y y.y z.z
+
 		if (Input.IsActionPressed("thrustUp"))
 			foreach (var e in aerodynamics.Engines)
 				e.Update(true, delta);
@@ -141,15 +146,20 @@ public class PlaneRigid : RigidBody
 		else
 			aerodynamics.Elevator.Level();
 
-		if (Input.IsActionJustPressed("rollLeft"))
+		if (Input.IsActionPressed("rollLeft"))
 		{
 			aerodynamics.LeftAileron.Move(true);
 			aerodynamics.RightAileron.Move(false);
 		}
-		else if (Input.IsActionJustPressed("rollRight"))
+		else if (Input.IsActionPressed("rollRight"))
 		{
 			aerodynamics.LeftAileron.Move(false);
 			aerodynamics.RightAileron.Move(true);
+		}
+		else
+		{
+			aerodynamics.LeftAileron.Level();
+			aerodynamics.RightAileron.Level();
 		}
 
 		if (Input.IsActionJustPressed("slats"))

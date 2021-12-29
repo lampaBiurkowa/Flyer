@@ -26,12 +26,12 @@ namespace ClientCore.Physics.PlaneParts
             get => angleRadians;
             private set
             { 
-                angleDegrees = value;
-                angleRadians = (float)GameMath.DegToRad((double)value);
+                angleDegrees = (float)GameMath.RadToDeg((double)value);
+                angleRadians = value;
             }
         }
 
-        public const float STEP = 0.2f;
+        public const float STEP = 5f;
         float accelerationDegrees = 0;
 
         public Elevator(Vector2 offset, GenericSurfaceData data) : base(offset)
@@ -50,6 +50,7 @@ namespace ClientCore.Physics.PlaneParts
         public void Level()
         {
             accelerationDegrees = 0;
+            AngleDegrees = 0;
         }
 
         public void Update(float delta)

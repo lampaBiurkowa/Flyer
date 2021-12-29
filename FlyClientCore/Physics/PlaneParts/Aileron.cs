@@ -25,13 +25,13 @@ namespace ClientCore.Physics.PlaneParts
             get => angleRadians;
             set
             { 
-                angleDegrees = value;
-                angleRadians = (float)GameMath.DegToRad((double)value);
+                angleDegrees = (float)GameMath.RadToDeg((double)value);
+                angleRadians = value;
             }
         }
 
         float accelerationDegrees = 0;
-        const float STEP = 0.5f;
+        const float STEP = 50f;
         const float MAX_ANGLE = 30f;
 
         public Aileron(Vector2 offset, GenericSurfaceData data) : base(offset)
@@ -54,6 +54,12 @@ namespace ClientCore.Physics.PlaneParts
                 AngleDegrees = MAX_ANGLE;
             if (AngleDegrees < -MAX_ANGLE)
                 AngleDegrees = -MAX_ANGLE;
+        }
+
+        public void Level()
+        {
+            accelerationDegrees = 0;
+            AngleDegrees = 0;
         }
 
         public float GetLiftSurface() => data.LiftSurface * (float)Math.Sin(angleRadians);
