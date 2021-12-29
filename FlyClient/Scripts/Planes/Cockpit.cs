@@ -1,5 +1,7 @@
 using Godot;
+using ClientCore.Physics;
 using ClientCore.Cockpit;
+using Shared;
 using System;
 using System.Collections.Generic;
 
@@ -126,12 +128,16 @@ public class Cockpit : Control
 		liftLabel.Text = $"{lift} ({left} + {right})";
 	}
 
-	public void SetSpeed(float speed)
+	public void SetSpeed(PlanePhysics p)//float speed)
 	{
 		if (speedLabel == null)
 			return;
 
-		speedLabel.Text = $"{speed}";
+		float x = (float)(p.FlightData.Speed.X * Math.Cos(p.LocalRotation.Z)); //yaw
+		float y = (float)(p.FlightData.Speed.Y * Math.Sin(p.LocalRotation.Y)); //pitch
+		float z = (float)(p.FlightData.Speed.Z * Math.Cos(p.LocalRotation.X)); //roll
+		float tot = (float)(Math.Sqrt(Math.Pow(x, 2) + Math.Pow(y, 2) + Math.Pow(z, 2)));
+		speedLabel.Text = $"{tot} x {x} y {y} ({p.FlightData.Speed.Y} * {Math.Sin(p.LocalRotation.Y)}) z {z}";
 	}
 
 	public void SetWeight(float weight)

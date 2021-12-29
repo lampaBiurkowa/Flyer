@@ -308,7 +308,7 @@ __meta__ = {
 }
 
 [node name="AH" type="Sprite" parent="."]
-position = Vector2( 1230, 630 )
+position = Vector2( 1230, 570 )
 scale = Vector2( 0.4, 0.4 )
 z_index = 1
 texture = ExtResource( 3 )

@@ -5,7 +5,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="ClientCore">
-      <HintPath>../FlyClientCore/bin/Debug/netstandard2.0/FlyClientCore.dll</HintPath>
+      <HintPath>../FlyClientCore/bin/Debug/netstandard2.1/FlyClientCore.dll</HintPath>
     </Reference>
     <Reference Include="GeoLib">
       <HintPath>/home/julian/ngruza1/C#/GeoLib/GeoLib/GeoLib/bin/Debug/netcoreapp2.2/GeoLib.dll</HintPath>

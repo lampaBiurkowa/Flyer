@@ -1,10 +1,10 @@
 using GeoLib;
 
-namespace ClientCore
+namespace Shared
 {
     public class FlightData
     {
-        const float ALTITUDE_FACTOR = 2;
+        const float ALTITUDE_FACTOR = 4;
         private Vector3 position;
         public Vector3 Position
         {

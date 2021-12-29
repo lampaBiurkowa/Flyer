@@ -1,4 +1,6 @@
+//po co to
 using GeoLib;
+using Shared;
 using Shared.Objects;
 
 namespace ClientCore

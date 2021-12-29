@@ -7,7 +7,7 @@ namespace ClientCore.Physics.PlaneParts
     public class Elevator : Part, IAerodynamic
     {
         GenericSurfaceData data;
-        const float MAX_ANGLE = 30;
+        const float MAX_ANGLE = 60;
 
         private float angleDegrees = 0;
         public float AngleDegrees
@@ -31,8 +31,8 @@ namespace ClientCore.Physics.PlaneParts
             }
         }
 
-        public const float STEP = 5f;
-        float accelerationDegrees = 0;
+        public const float STEP = 100000000f;
+        public float accelerationDegrees = 0;
 
         public Elevator(Vector2 offset, GenericSurfaceData data) : base(offset)
         {
@@ -56,6 +56,7 @@ namespace ClientCore.Physics.PlaneParts
         public void Update(float delta)
         {
             AngleDegrees = AngleDegrees + accelerationDegrees * delta;
+            
             if (AngleDegrees > MAX_ANGLE)
                 AngleDegrees = MAX_ANGLE;
             if (AngleDegrees < -MAX_ANGLE)

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using ClientCore;
 using ClientCore.Physics;
 using ClientCore.Physics.PlaneParts;
+using Shared;
 using Shared.Objects;
 
 public class PlaneRigid : RigidBody
@@ -32,14 +33,13 @@ public class PlaneRigid : RigidBody
 		GenericSurfaceData slatSurface = new GenericSurfaceData(1, 1, 0);
 		int length = 25;
 		//max,fuel ,restart,surface,acc,dec
-		EngineData engine = new EngineData(1, 1, 8000, 1,0.5f, 1.5f);
+		EngineData engine = new EngineData(2, 1, 8000, 1,0.5f, 2.5f);
 		List<Tuple<EngineData, Localization>> engines = new List<Tuple<EngineData, Localization>>();
 		engines.Add(new Tuple<EngineData, Localization>(engine, Localization.LEFT));
 		engines.Add(new Tuple<EngineData, Localization>(engine, Localization.RIGHT));
 		planeData = new PlaneData(aileronSurface, elevatorSurface, flapSurface, rudderSurface, slatSurface, wingSurface, engines, length);
 		aerodynamics = new AerodynamicsData(planeData);
 		//
-		ApplyCentralImpulse(new Vector3(0, 0, -0.001f));
 	}
 
 	void loadComponents()
@@ -51,14 +51,19 @@ public class PlaneRigid : RigidBody
 	public override void _IntegrateForces(PhysicsDirectBodyState state)
 	{
 		float delta = state.Step;
-		float weight = state.TotalGravity.y;
+		float weight = state.TotalGravity.y * Mass;
 		
 		GeoLib.Vector3 velocity = new GeoLib.Vector3(state.LinearVelocity.x, state.LinearVelocity.y, state.LinearVelocity.z);
 		GeoLib.Vector3 rotation = new GeoLib.Vector3(RotationDegrees.x, RotationDegrees.y, RotationDegrees.z);
 		GeoLib.Vector3 translation = new GeoLib.Vector3(Translation.x, Translation.y, Translation.z);
+		float roll = -GlobalTransform.basis.y.x;//(float)GeoLib.GameMath.RadToDeg(-GlobalTransform.basis.y.x);
+		float pitch = GlobalTransform.basis.y.z;//(float)GeoLib.GameMath.RadToDeg(GlobalTransform.basis.y.z);
+		float yaw = GlobalTransform.basis.z.x;//(float)GeoLib.GameMath.RadToDeg(GlobalTransform.basis.z.x);
+		GeoLib.Vector3 localRotation = new GeoLib.Vector3(roll, pitch, yaw);
+
 		FlightData flightData = new FlightData(translation, rotation, velocity);
 		planePhysics = new PlanePhysics(flightData, planeData, aerodynamics);
-		planePhysics.Update(flightData);
+		planePhysics.Update(flightData, localRotation);
 
 		float leftLift = planePhysics.GetLeftLift(windPhysics);
 		float rightLift = planePhysics.GetRightLift(windPhysics);
@@ -86,14 +91,16 @@ public class PlaneRigid : RigidBody
 		foreach (var e in aerodynamics.Engines)
 			thrusts.Add(new Tuple<float, float>(e.CurrentSpeed, e.GetThrust(delta, windPhysics.GetDensity(flightData.Altitude))));
 		cockpit.SetEngines(thrusts);
-
 		state.ApplyImpulse(left, GlobalTransform.basis.z * thrusts[0].Item2 * delta * -1);
 		state.ApplyImpulse(right, GlobalTransform.basis.z * thrusts[1].Item2 * delta * -1);
+
+		state.ApplyImpulse(left, GlobalTransform.basis.z * planePhysics.GetLeftDrag(windPhysics) * delta);
+		state.ApplyImpulse(right, GlobalTransform.basis.z * planePhysics.GetRightDrag(windPhysics) * delta);
 
 		float elevatorLift = planePhysics.GetPartLift(aerodynamics.Elevator, windPhysics) * scale;
 		state.ApplyImpulse(tail, new Vector3(0, elevatorLift, 0));
 		
-		cockpit.SetSpeed((float)Math.Sqrt(Math.Pow(state.LinearVelocity.x, 2) + Math.Pow(state.LinearVelocity.z, 2)));
+		cockpit.SetSpeed(planePhysics);//.GetForwardSpeed()
 		cockpit.SetLift(totalLift, leftLift, rightLift);
 		cockpit.SetAltitude(flightData.Altitude);
 		cockpit.SetWeight(weight * delta);
@@ -128,9 +135,9 @@ public class PlaneRigid : RigidBody
 		float eSide = planePhysics.GetPartSide(aerodynamics.Elevator, windPhysics);
 		cockpit.SetElevator(eLift, eDrag, eSide);
 
-		cockpit.SetPitch((float)GeoLib.GameMath.RadToDeg(GlobalTransform.basis.y.z));
-		cockpit.SetRoll((float)GeoLib.GameMath.RadToDeg(GlobalTransform.basis.y.x));
-		cockpit.SetYaw((float)GeoLib.GameMath.RadToDeg(GlobalTransform.basis.x.z));//z.y z.x X:x.y y.y z.z
+		cockpit.SetPitch((float)GeoLib.GameMath.RadToDeg(pitch));
+		cockpit.SetRoll((float)GeoLib.GameMath.RadToDeg(roll));
+		cockpit.SetYaw((float)GeoLib.GameMath.RadToDeg(yaw));
 
 		if (Input.IsActionPressed("thrustUp"))
 			foreach (var e in aerodynamics.Engines)
