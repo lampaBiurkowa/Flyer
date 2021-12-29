@@ -40,7 +40,7 @@ namespace ClientCore.Physics
 
         public float GetPartDrag(IAerodynamic part, WindPhysics wind)
         {
-            const float DRAG_COEFFICENT = 0.0001f;
+            const float DRAG_COEFFICENT = 0.001f;
             float density = wind.GetDensity(FlightData.Altitude);
             float speed = GetForwardSpeed(); //-wind spid
             float surface = part.GetDragSurface();
@@ -50,12 +50,15 @@ namespace ClientCore.Physics
 
         public float GetPartLift(IAerodynamic part, WindPhysics wind)
         {
-            const float LIFT_COEFFICENT = 0.0001f;
+            const float LIFT_COEFFICENT = 0.001f;
             float density = wind.GetDensity(FlightData.Altitude);
             float speed = GetForwardSpeed();//-wind spid
             float surface = part.GetLiftSurface();
 
-            return (float)(LIFT_COEFFICENT * ((density * Math.Pow(speed, 2)) / 2) * surface);           
+            float lift = (float)(LIFT_COEFFICENT * ((density * Math.Pow(speed, 2)) / 2) * surface);
+            lift *= MathF.Cos((float)LocalRotation.Y); //pitch
+            lift *= MathF.Cos((float)LocalRotation.X); //roll
+            return lift;
         }
 
         public float GetPartSide(IAerodynamic part, WindPhysics wind)

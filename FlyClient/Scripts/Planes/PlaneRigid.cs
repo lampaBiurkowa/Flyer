@@ -26,12 +26,12 @@ public class PlaneRigid : RigidBody
 
 		//temp /drag,lift,side
 		GenericSurfaceData aileronSurface = new GenericSurfaceData(0, 3, 0);
-		GenericSurfaceData elevatorSurface = new GenericSurfaceData(0, 1, 0);
+		GenericSurfaceData elevatorSurface = new GenericSurfaceData(0, 5, 0);
 		GenericSurfaceData flapSurface = new GenericSurfaceData(0, 1, 0);
 		GenericSurfaceData rudderSurface = new GenericSurfaceData(0, 0, 10);
-		GenericSurfaceData wingSurface = new GenericSurfaceData(1, 50, 0);
+		GenericSurfaceData wingSurface = new GenericSurfaceData(1, 40, 0);
 		GenericSurfaceData slatSurface = new GenericSurfaceData(1, 1, 0);
-		int length = 25;
+		int length = 40;
 		//max,fuel ,restart,surface,acc,dec
 		EngineData engine = new EngineData(2, 1, 8000, 1,0.5f, 2.5f);
 		List<Tuple<EngineData, Localization>> engines = new List<Tuple<EngineData, Localization>>();
@@ -56,9 +56,10 @@ public class PlaneRigid : RigidBody
 		GeoLib.Vector3 velocity = new GeoLib.Vector3(state.LinearVelocity.x, state.LinearVelocity.y, state.LinearVelocity.z);
 		GeoLib.Vector3 rotation = new GeoLib.Vector3(RotationDegrees.x, RotationDegrees.y, RotationDegrees.z);
 		GeoLib.Vector3 translation = new GeoLib.Vector3(Translation.x, Translation.y, Translation.z);
-		float roll = -GlobalTransform.basis.y.x;//(float)GeoLib.GameMath.RadToDeg(-GlobalTransform.basis.y.x);
-		float pitch = GlobalTransform.basis.y.z;//(float)GeoLib.GameMath.RadToDeg(GlobalTransform.basis.y.z);
-		float yaw = GlobalTransform.basis.z.x;//(float)GeoLib.GameMath.RadToDeg(GlobalTransform.basis.z.x);
+		float localRotationScale = (float)GeoLib.GameMath.DegToRad(90);
+		float roll = -GlobalTransform.basis.y.x * localRotationScale;//(float)GeoLib.GameMath.RadToDeg(-GlobalTransform.basis.y.x);
+		float pitch = GlobalTransform.basis.y.z * localRotationScale;//(float)GeoLib.GameMath.RadToDeg(GlobalTransform.basis.y.z);
+		float yaw = GlobalTransform.basis.z.x * localRotationScale;//(float)GeoLib.GameMath.RadToDeg(GlobalTransform.basis.z.x);
 		GeoLib.Vector3 localRotation = new GeoLib.Vector3(roll, pitch, yaw);
 
 		FlightData flightData = new FlightData(translation, rotation, velocity);
