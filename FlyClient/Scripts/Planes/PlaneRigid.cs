@@ -194,6 +194,11 @@ public class PlaneRigid : RigidBody
 			}
 		}
 
+		if (Input.IsActionJustPressed("flaps"))
+		{
+			
+		}
+
 		aerodynamics.Update(delta);
 	}
 }
