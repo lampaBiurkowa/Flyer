@@ -23,8 +23,14 @@ namespace ClientCore.Physics
 
         public Vector3 GetSpeed() => FlightData.Speed;
         public float GetAirspeed() => (float)Math.Sqrt(Math.Pow(FlightData.Speed.X, 2) + Math.Pow(FlightData.Speed.Z, 2));
-        
-        public float GetDiveForwardSpeed() => (float)FlightData.Speed.Y * -MathF.Sin((float)LocalRotation.Y);
+        public float GetDiveForwardSpeed()
+        {
+            float val = (float)FlightData.Speed.Y * MathF.Sin((float)LocalRotation.Y);
+            if (val < 0)
+                val = 0;
+
+            return val;
+        }
 
         public void Update(FlightData flightData, Vector3 localRotation)
         {

@@ -106,7 +106,7 @@ public class PlaneRigid : RigidBody
 		float elevatorLift = planePhysics.GetPartLift(aerodynamics.Elevator, windPhysics) * scale;
 		state.ApplyImpulse(tail, new Vector3(0, elevatorLift, 0));
 		
-		cockpit.SetSpeed(planePhysics);//.GetDiveForwardSpeed()
+		cockpit.SetSpeed(planePhysics);//.GetAirspeed()
 		cockpit.SetLift(totalLift, leftLift, rightLift);
 		cockpit.SetAltitude(flightData.Altitude);
 		cockpit.SetWeight(weight * delta);
