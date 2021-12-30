@@ -19,7 +19,6 @@ public class PlaneRigid : RigidBody
 	public override void _Ready()
 	{
 		loadComponents();
-		//planePhysics = new PlanePhysics();
 		windPhysics = new WindPhysics();
 		windPhysics.Direction = new GeoLib.Vector3(1, 0, 0);
 		windPhysics.Speed = new GeoLib.Vector3(5, 0, 0);
@@ -33,7 +32,7 @@ public class PlaneRigid : RigidBody
 		GenericSurfaceData slatSurface = new GenericSurfaceData(1, 1, 0);
 		int length = 40;
 		//max,fuel ,restart,surface,acc,dec
-		EngineData engine = new EngineData(2, 1, 8000, 1,0.5f, 2.5f);
+		EngineData engine = new EngineData(30, 1, 8000, 1,5f, 2.5f);
 		List<Tuple<EngineData, Localization>> engines = new List<Tuple<EngineData, Localization>>();
 		engines.Add(new Tuple<EngineData, Localization>(engine, Localization.LEFT));
 		engines.Add(new Tuple<EngineData, Localization>(engine, Localization.RIGHT));
@@ -57,9 +56,9 @@ public class PlaneRigid : RigidBody
 		GeoLib.Vector3 rotation = new GeoLib.Vector3(RotationDegrees.x, RotationDegrees.y, RotationDegrees.z);
 		GeoLib.Vector3 translation = new GeoLib.Vector3(Translation.x, Translation.y, Translation.z);
 		float localRotationScale = (float)GeoLib.GameMath.DegToRad(90);
-		float roll = -GlobalTransform.basis.y.x * localRotationScale;//(float)GeoLib.GameMath.RadToDeg(-GlobalTransform.basis.y.x);
-		float pitch = GlobalTransform.basis.y.z * localRotationScale;//(float)GeoLib.GameMath.RadToDeg(GlobalTransform.basis.y.z);
-		float yaw = GlobalTransform.basis.z.x * localRotationScale;//(float)GeoLib.GameMath.RadToDeg(GlobalTransform.basis.z.x);
+		float roll = -GlobalTransform.basis.y.x * localRotationScale;
+		float pitch = GlobalTransform.basis.y.z * localRotationScale;
+		float yaw = GlobalTransform.basis.z.x * localRotationScale;
 		GeoLib.Vector3 localRotation = new GeoLib.Vector3(roll, pitch, yaw);
 
 		FlightData flightData = new FlightData(translation, rotation, velocity);
@@ -95,13 +94,19 @@ public class PlaneRigid : RigidBody
 		state.ApplyImpulse(left, GlobalTransform.basis.z * thrusts[0].Item2 * delta * -1);
 		state.ApplyImpulse(right, GlobalTransform.basis.z * thrusts[1].Item2 * delta * -1);
 
+		float fallForwardSpeed = planePhysics.GetDiveForwardSpeed() * 0.01f;
+		float realYSpeed = state.LinearVelocity.y;
+		float realXSpeed = state.LinearVelocity.x + (float)(fallForwardSpeed * Math.Sin(localRotation.Z));
+		float realZSpeed = state.LinearVelocity.z + (float)(-fallForwardSpeed * Math.Cos(localRotation.Z));
+		state.LinearVelocity = new Vector3(realXSpeed, realYSpeed, realZSpeed);
+		
 		state.ApplyImpulse(left, GlobalTransform.basis.z * planePhysics.GetLeftDrag(windPhysics) * delta);
 		state.ApplyImpulse(right, GlobalTransform.basis.z * planePhysics.GetRightDrag(windPhysics) * delta);
 
 		float elevatorLift = planePhysics.GetPartLift(aerodynamics.Elevator, windPhysics) * scale;
 		state.ApplyImpulse(tail, new Vector3(0, elevatorLift, 0));
 		
-		cockpit.SetSpeed(planePhysics);//.GetForwardSpeed()
+		cockpit.SetSpeed(planePhysics);//.GetDiveForwardSpeed()
 		cockpit.SetLift(totalLift, leftLift, rightLift);
 		cockpit.SetAltitude(flightData.Altitude);
 		cockpit.SetWeight(weight * delta);
@@ -184,7 +189,7 @@ public class PlaneRigid : RigidBody
 		}
 
 		aerodynamics.Update(delta);
-		state.IntegrateForces();
+		//state.IntegrateForces();
 	}
 }
 

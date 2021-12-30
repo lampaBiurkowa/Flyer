@@ -22,15 +22,9 @@ namespace ClientCore.Physics
         }
 
         public Vector3 GetSpeed() => FlightData.Speed;
-        //public float GetForwardSpeed() => (float)Math.Sqrt(Math.Pow(FlightData.Speed.X, 2) + Math.Pow(FlightData.Speed.Z, 2));
+        public float GetAirspeed() => (float)Math.Sqrt(Math.Pow(FlightData.Speed.X, 2) + Math.Pow(FlightData.Speed.Z, 2));
         
-        public float GetForwardSpeed()
-        {
-            float x = (float)FlightData.Speed.X * MathF.Cos((float)LocalRotation.Z); //yaw
-            float y = (float)FlightData.Speed.Y * MathF.Sin((float)LocalRotation.Y); //pitch
-            float z = (float)FlightData.Speed.Z * MathF.Cos((float)LocalRotation.X); //roll
-            return MathF.Sqrt(MathF.Pow(x, 2) + MathF.Pow(y, 2) + MathF.Pow(z, 2));
-        }
+        public float GetDiveForwardSpeed() => (float)FlightData.Speed.Y * -MathF.Sin((float)LocalRotation.Y);
 
         public void Update(FlightData flightData, Vector3 localRotation)
         {
@@ -42,7 +36,7 @@ namespace ClientCore.Physics
         {
             const float DRAG_COEFFICENT = 0.001f;
             float density = wind.GetDensity(FlightData.Altitude);
-            float speed = GetForwardSpeed(); //-wind spid
+            float speed = GetAirspeed(); //-wind spid
             float surface = part.GetDragSurface();
 
             return (float)(DRAG_COEFFICENT * ((density * Math.Pow(speed, 2)) / 2) * surface);           
@@ -52,7 +46,7 @@ namespace ClientCore.Physics
         {
             const float LIFT_COEFFICENT = 0.001f;
             float density = wind.GetDensity(FlightData.Altitude);
-            float speed = GetForwardSpeed();//-wind spid
+            float speed = GetAirspeed();//-wind spid
             float surface = part.GetLiftSurface();
 
             float lift = (float)(LIFT_COEFFICENT * ((density * Math.Pow(speed, 2)) / 2) * surface);

@@ -132,12 +132,8 @@ public class Cockpit : Control
 	{
 		if (speedLabel == null)
 			return;
-
-		float x = (float)(p.FlightData.Speed.X * Math.Cos(p.LocalRotation.Z)); //yaw
-		float y = (float)(p.FlightData.Speed.Y * Math.Sin(p.LocalRotation.Y)); //pitch
-		float z = (float)(p.FlightData.Speed.Z * Math.Cos(p.LocalRotation.X)); //roll
-		float tot = (float)(Math.Sqrt(Math.Pow(x, 2) + Math.Pow(y, 2) + Math.Pow(z, 2)));
-		speedLabel.Text = $"{tot} x {x} y {y} ({p.FlightData.Speed.Y} * {Math.Sin(p.LocalRotation.Y)}) z {z}";
+			
+		speedLabel.Text = $"{p.GetAirspeed()} x {p.FlightData.Speed.X} y {p.FlightData.Speed.Y} z {p.FlightData.Speed.Z}";
 	}
 
 	public void SetWeight(float weight)
