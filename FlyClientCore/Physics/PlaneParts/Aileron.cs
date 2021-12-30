@@ -31,8 +31,8 @@ namespace ClientCore.Physics.PlaneParts
         }
 
         float accelerationDegrees = 0;
-        const float STEP = 50f;
-        const float MAX_ANGLE = 30f;
+        const float STEP = 100f;
+        const float MAX_ANGLE = 45f;
 
         public Aileron(Vector2 offset, GenericSurfaceData data) : base(offset)
         {

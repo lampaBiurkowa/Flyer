@@ -6,14 +6,50 @@ namespace ClientCore.Physics.PlaneParts
 {
     public class Rudder : Part, IAerodynamic
     {
-        const float ANGLE = 30;
+        const float MAX_ANGLE = 45;
         GenericSurfaceData data;
 
-        public Localization Localization {get; private set;} = Localization.CENTER;
+        private float angleDegrees = 0;
+        public float AngleDegrees
+        {
+            get => angleDegrees;
+            private set
+            { 
+                angleDegrees = value;
+                angleRadians = (float)GameMath.DegToRad((double)value);
+            }
+        }
+
+        private float angleRadians = 0;
+        public float AngleRadians
+        {
+            get => angleRadians;
+            private set
+            { 
+                angleDegrees = (float)GameMath.RadToDeg((double)value);
+                angleRadians = value;
+            }
+        }
+
+        public const float STEP = 100f;
+        public float accelerationDegrees = 0;
 
         public Rudder(Vector2 offset, GenericSurfaceData data) : base(offset)
         {
             this.data = data;
+        }
+
+        public void Move(bool moveLeft)
+        {
+            if (moveLeft)
+                accelerationDegrees = -STEP;
+            else
+                accelerationDegrees = STEP;
+        }
+
+        public void Level()
+        {
+            accelerationDegrees = 0;
         }
 
         public float GetLiftSurface() => 0;
@@ -22,12 +58,17 @@ namespace ClientCore.Physics.PlaneParts
 
         public float GetSideSurface()
         {
-            if (Localization == Localization.CENTER)
-                return 0;
-            if (Localization == Localization.LEFT)
-                return data.SideSurface * (float)Math.Cos(ANGLE) - data.SideSurface * (float)(Math.Sin(ANGLE));
+            return data.SideSurface * (float)(Math.Sin(AngleDegrees));
+        }
+
+        public void Update(float delta)
+        {
+            AngleDegrees = AngleDegrees + accelerationDegrees * delta;
             
-            return -data.SideSurface * (float)Math.Cos(ANGLE) + data.SideSurface * (float)(Math.Sin(ANGLE));
+            if (AngleDegrees > MAX_ANGLE)
+                AngleDegrees = MAX_ANGLE;
+            if (AngleDegrees < -MAX_ANGLE)
+                AngleDegrees = -MAX_ANGLE;
         }
     }
 }

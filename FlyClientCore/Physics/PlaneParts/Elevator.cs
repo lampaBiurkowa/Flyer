@@ -31,7 +31,7 @@ namespace ClientCore.Physics.PlaneParts
             }
         }
 
-        public const float STEP = 100000000000f;
+        public const float STEP = 100f;
         public float accelerationDegrees = 0;
 
         public Elevator(Vector2 offset, GenericSurfaceData data) : base(offset)

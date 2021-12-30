@@ -25,10 +25,10 @@ public class PlaneRigid : RigidBody
 
 		//temp /drag,lift,side
 		GenericSurfaceData aileronSurface = new GenericSurfaceData(0, 3, 0);
-		GenericSurfaceData elevatorSurface = new GenericSurfaceData(0, 5, 0);
+		GenericSurfaceData elevatorSurface = new GenericSurfaceData(0, 1, 0);
 		GenericSurfaceData flapSurface = new GenericSurfaceData(0, 1, 0);
 		GenericSurfaceData rudderSurface = new GenericSurfaceData(0, 0, 10);
-		GenericSurfaceData wingSurface = new GenericSurfaceData(1, 40, 0);
+		GenericSurfaceData wingSurface = new GenericSurfaceData(1, 60, 0);
 		GenericSurfaceData slatSurface = new GenericSurfaceData(1, 1, 0);
 		int length = 40;
 		//max,fuel ,restart,surface,acc,dec
@@ -44,7 +44,7 @@ public class PlaneRigid : RigidBody
 	void loadComponents()
 	{
 		plane = (PlaneBase)GetChild(0);
-		cockpit = (Cockpit)GetNode("../../../Cockpit");
+		cockpit = (Cockpit)GetNodeOrNull("../../../Cockpit");//ez
 	}
 	
 	public override void _IntegrateForces(PhysicsDirectBodyState state)
@@ -65,17 +65,14 @@ public class PlaneRigid : RigidBody
 		planePhysics = new PlanePhysics(flightData, planeData, aerodynamics);
 		planePhysics.Update(flightData, localRotation);
 
-		float leftLift = planePhysics.GetLeftLift(windPhysics);
-		float rightLift = planePhysics.GetRightLift(windPhysics);
+		float leftLift = planePhysics.GetLeftLift(windPhysics) * delta;
+		float rightLift = planePhysics.GetRightLift(windPhysics) * delta;
 		float totalLift = leftLift + rightLift;
 		float originalTotalLift = totalLift;
 		float leftLiftPercentage = (float)GeoLib.GameMath.GetPercentage(leftLift, rightLift);
 
-		const float OVERLIFT = 1f;
-		if (state.LinearVelocity.y >= 0 && totalLift > -weight * delta)
+		if (totalLift > -weight * delta)
 			totalLift = -weight * delta;
-		else if (totalLift > -weight * delta * OVERLIFT)
-			totalLift = -weight * delta * OVERLIFT;
 
 		float scale = (float)GeoLib.GameMath.GetPercentage(totalLift, originalTotalLift) / 100f;
 		leftLift = (totalLift * leftLiftPercentage) / 100f;
@@ -100,8 +97,10 @@ public class PlaneRigid : RigidBody
 		float realZSpeed = state.LinearVelocity.z + (float)(-fallForwardSpeed * Math.Cos(localRotation.Z));
 		state.LinearVelocity = new Vector3(realXSpeed, realYSpeed, realZSpeed);
 		
-		state.ApplyImpulse(left, GlobalTransform.basis.z * planePhysics.GetLeftDrag(windPhysics) * delta);
-		state.ApplyImpulse(right, GlobalTransform.basis.z * planePhysics.GetRightDrag(windPhysics) * delta);
+		state.ApplyImpulse(left, new Vector3(0, 0, planePhysics.GetLeftDrag(windPhysics) * delta));
+		state.ApplyImpulse(right, new Vector3(0, 0, planePhysics.GetRightDrag(windPhysics) * delta));
+
+		state.ApplyImpulse(tail, new Vector3(planePhysics.GetTotalSide(windPhysics) * delta, 0 ,0));
 
 		float elevatorLift = planePhysics.GetPartLift(aerodynamics.Elevator, windPhysics) * scale;
 		state.ApplyImpulse(tail, new Vector3(0, elevatorLift, 0));
@@ -159,6 +158,13 @@ public class PlaneRigid : RigidBody
 		else
 			aerodynamics.Elevator.Level();
 
+		if (Input.IsActionPressed("rudderLeft"))
+			aerodynamics.Rudder.Move(true);
+		else if (Input.IsActionPressed("rudderRight"))
+			aerodynamics.Rudder.Move(false);
+		else
+			aerodynamics.Rudder.Level();
+
 		if (Input.IsActionPressed("rollLeft"))
 		{
 			aerodynamics.LeftAileron.Move(true);
@@ -189,7 +195,6 @@ public class PlaneRigid : RigidBody
 		}
 
 		aerodynamics.Update(delta);
-		//state.IntegrateForces();
 	}
 }
 

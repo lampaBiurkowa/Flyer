@@ -80,7 +80,7 @@ public class ChooseAircraft : ViewportContainer
 			planeSpace.GetChild(0).QueueFree();
 		PackedScene scene = (PackedScene)ResourceLoader.Load($"Scenes/Planes/Plane{currentPlane}.tscn");
 		var mesh = scene.Instance();
-		plane = (PlaneBase)(mesh.GetNode("Plane"));
+		plane = (PlaneBase)(mesh.GetChild(0));
 		plane.Scale = new Vector3(0.1f, 0.1f, 0.1f);
 		planeSpace.AddChild(plane.GetNode("../"));
 		currentSkin = 1;

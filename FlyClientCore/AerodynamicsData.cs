@@ -50,6 +50,7 @@ namespace ClientCore
         public void Update(float delta)
         {
             Elevator.Update(delta);
+            Rudder.Update(delta);
             LeftAileron.Update(delta);
             RightAileron.Update(delta);
         }
