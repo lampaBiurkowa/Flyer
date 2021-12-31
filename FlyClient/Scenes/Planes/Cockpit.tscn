@@ -1,8 +1,7 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=5 format=2]
 
 [ext_resource path="res://Resources/Fonts/font.tres" type="DynamicFontData" id=1]
-[ext_resource path="res://Resources/Planes/Cockpit/ahContent.png" type="Texture" id=2]
-[ext_resource path="res://Resources/Planes/Cockpit/ahFrame.png" type="Texture" id=3]
+[ext_resource path="res://Scenes/Cockpit/BasicT.tscn" type="PackedScene" id=2]
 [ext_resource path="res://Scripts/Planes/Cockpit.cs" type="Script" id=4]
 
 [sub_resource type="DynamicFont" id=10]
@@ -307,12 +306,8 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="AH" type="Sprite" parent="."]
-position = Vector2( 1230, 570 )
-scale = Vector2( 0.4, 0.4 )
-z_index = 1
-texture = ExtResource( 3 )
-
-[node name="AHControl" type="Sprite" parent="AH"]
-z_index = -1
-texture = ExtResource( 2 )
+[node name="BasicT" parent="." instance=ExtResource( 2 )]
+margin_left = 820.0
+margin_top = 420.0
+margin_right = 1340.0
+margin_bottom = 740.0

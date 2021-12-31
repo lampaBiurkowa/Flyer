@@ -27,7 +27,7 @@ public class PlaneRigid : RigidBody
 		GenericSurfaceData aileronSurface = new GenericSurfaceData(0, 3, 0);
 		GenericSurfaceData elevatorSurface = new GenericSurfaceData(0, 2, 0);
 		GenericSurfaceData flapSurface = new GenericSurfaceData(0, 1, 0);
-		GenericSurfaceData rudderSurface = new GenericSurfaceData(0, 0, 10);
+		GenericSurfaceData rudderSurface = new GenericSurfaceData(0, 0, 8);
 		GenericSurfaceData wingSurface = new GenericSurfaceData(1, 60, 0);
 		GenericSurfaceData slatSurface = new GenericSurfaceData(1, 1, 0);
 		int length = 40;
@@ -143,6 +143,8 @@ public class PlaneRigid : RigidBody
 		cockpit.SetPitch((float)GeoLib.GameMath.RadToDeg(pitch));
 		cockpit.SetRoll((float)GeoLib.GameMath.RadToDeg(roll));
 		cockpit.SetYaw((float)GeoLib.GameMath.RadToDeg(yaw));
+
+		cockpit.SetAH((float)GeoLib.GameMath.RadToDeg(pitch), (float)GeoLib.GameMath.RadToDeg(roll));
 
 		if (Input.IsActionPressed("thrustUp"))
 		{

@@ -23,6 +23,8 @@ public class Cockpit : Control
 	Label yawLabel;
 	Sprite ahControl;
 	ArtificialHorizonData ahData;
+	BasicT basicT;
+	float previousYaw = 0;
 	public override void _Ready()
 	{
 		Initialize();
@@ -31,7 +33,6 @@ public class Cockpit : Control
 	public void Initialize()
 	{
 		loadComponents();
-		ahData = new ArtificialHorizonData("Resources/Planes/Cockpit/ahContent.png");
 	}
 
 	void loadComponents()
@@ -50,7 +51,7 @@ public class Cockpit : Control
 		pitchLabel = (Label)GetNode("Pitch");
 		rollLabel = (Label)GetNode("Roll");
 		yawLabel = (Label)GetNode("Yaw");
-		ahControl = (Sprite)GetNode("AH/AHControl");
+		basicT = (BasicT)GetNode("BasicT");
 	}
 
 	public void SetEngines(List<Tuple<float, float>> thrust)
@@ -119,6 +120,8 @@ public class Cockpit : Control
 			return;
 
 		altitudeLabel.Text = $"{altitude}";
+
+		basicT.SetAltimeter(altitude);
 	}
 
 	public void SetLift(float lift, float left, float right)
@@ -135,6 +138,9 @@ public class Cockpit : Control
 			return;
 			
 		speedLabel.Text = $"{p.GetAirspeed()} x {p.FlightData.Speed.X} y {p.FlightData.Speed.Y} z {p.FlightData.Speed.Z}";
+	
+		basicT.SetAirspeed(p.GetAirspeed());
+		basicT.SetVerticalSpeed((float)p.FlightData.Speed.Y);
 	}
 
 	public void SetWeight(float weight)
@@ -152,7 +158,6 @@ public class Cockpit : Control
 
 		string text = $"{angleDeg}";
 		pitchLabel.Text = text;
-		ahControl.Position = new Vector2(ahControl.Position.x, ahData.GetPitchPixelsForDegree() * angleDeg);
 	}
 
 	public void SetYaw(float angleDeg)
@@ -162,7 +167,10 @@ public class Cockpit : Control
 
 		string text = $"{angleDeg}";
 		yawLabel.Text = text;
-		//ahControl.Position = new Vector2(ahData.GetYawPixelsForDegree() * angleDeg, ahControl.Position.y);
+
+		basicT.SetHeading(angleDeg);
+		basicT.SetTurnCoordinator(angleDeg - previousYaw);
+		previousYaw = angleDeg;
 	}
 
 	public void SetRoll(float angleDeg)
@@ -172,6 +180,10 @@ public class Cockpit : Control
 
 		string text = $"{angleDeg}";
 		rollLabel.Text = text;
-		ahControl.RotationDegrees = angleDeg;
+	}
+
+	public void SetAH(float pitch, float roll)
+	{
+		basicT.SetAH(pitch, roll);
 	}
 }
