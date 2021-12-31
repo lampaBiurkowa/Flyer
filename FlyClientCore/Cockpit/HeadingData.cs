@@ -4,7 +4,7 @@ namespace ClientCore.Cockpit
 {
     public class HeadingData
     {
-        const float PRECISION = 2;
+        const float PRECISION = 0;
         float anglePerUnit;
 
         public HeadingData()

@@ -14,6 +14,7 @@ public class Cockpit : Control
 	Label aileronsLabel;
 	Label elevatorLabel;
 	Label flapsLabel;
+	Label gearLabel;
 	Label rudderLabel;
 	Label slatsLabel;
 	Label wingsLabel;
@@ -21,8 +22,6 @@ public class Cockpit : Control
 	Label pitchLabel;
 	Label rollLabel;
 	Label yawLabel;
-	Sprite ahControl;
-	ArtificialHorizonData ahData;
 	BasicT basicT;
 	float previousYaw = 0;
 	public override void _Ready()
@@ -44,6 +43,7 @@ public class Cockpit : Control
 		aileronsLabel = (Label)GetNode("Ailerons");
 		elevatorLabel = (Label)GetNode("Elevator");
 		flapsLabel = (Label)GetNode("Flaps");
+		gearLabel = (Label)GetNode("Gear");
 		rudderLabel = (Label)GetNode("Rudder");
 		slatsLabel = (Label)GetNode("Slats");
 		wingsLabel = (Label)GetNode("Wings");
@@ -96,6 +96,14 @@ public class Cockpit : Control
 			return;
 
 		wingsLabel.Text = $"L {lift.Item1} {lift.Item2} | D {drag.Item1} {drag.Item2} | S {side.Item1} {side.Item2}";
+	}
+
+	public void SetGear(float lift, float drag, float side)
+	{
+		if (gearLabel == null)
+			return;
+
+		gearLabel.Text = $"L {lift} | D {drag} | S {side}";
 	}
 
 	public void SetElevator(float lift, float drag, float side)

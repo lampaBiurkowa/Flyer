@@ -77,5 +77,4 @@ public class BasicT : Panel
 	{
 		turnCoordinatorArrow.RotationDegrees = turnCoordinatorData.GetAngleForYawRate(yawRate);
 	}
-
 }

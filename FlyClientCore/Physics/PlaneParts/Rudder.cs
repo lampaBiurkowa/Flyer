@@ -6,7 +6,7 @@ namespace ClientCore.Physics.PlaneParts
 {
     public class Rudder : Part, IAerodynamic
     {
-        const float MAX_ANGLE = 45;
+        const float MAX_ANGLE = 60;
         GenericSurfaceData data;
 
         private float angleDegrees = 0;

@@ -15,6 +15,12 @@ public class PlaneRigid : RigidBody
 	Cockpit cockpit;
 	AerodynamicsData aerodynamics;
 	PlaneData planeData;
+	RayCast gear;
+	RayCast gpDown;
+	RayCast gpForward;
+
+	bool gearUp = true;
+	float brakesDec = 0.9f;
 
 	public override void _Ready()
 	{
@@ -27,16 +33,17 @@ public class PlaneRigid : RigidBody
 		GenericSurfaceData aileronSurface = new GenericSurfaceData(0, 3, 0);
 		GenericSurfaceData elevatorSurface = new GenericSurfaceData(0, 2, 0);
 		GenericSurfaceData flapSurface = new GenericSurfaceData(0, 1, 0);
-		GenericSurfaceData rudderSurface = new GenericSurfaceData(0, 0, 8);
+		GenericSurfaceData rudderSurface = new GenericSurfaceData(0, 0, 10);
 		GenericSurfaceData wingSurface = new GenericSurfaceData(1, 60, 0);
 		GenericSurfaceData slatSurface = new GenericSurfaceData(1, 1, 0);
+		GenericSurfaceData gearSurface = new GenericSurfaceData(2, 0, 0);
 		int length = 40;
 		//max,fuel ,restart,surface,acc,dec
 		EngineData engine = new EngineData(30, 1, 8000, 1,5f, 2.5f);
 		List<Tuple<EngineData, Localization>> engines = new List<Tuple<EngineData, Localization>>();
 		engines.Add(new Tuple<EngineData, Localization>(engine, Localization.LEFT));
 		engines.Add(new Tuple<EngineData, Localization>(engine, Localization.RIGHT));
-		planeData = new PlaneData(aileronSurface, elevatorSurface, flapSurface, rudderSurface, slatSurface, wingSurface, engines, length);
+		planeData = new PlaneData(aileronSurface, elevatorSurface, flapSurface, gearSurface, rudderSurface, slatSurface, wingSurface, engines, length);
 		aerodynamics = new AerodynamicsData(planeData);
 		//
 	}
@@ -44,6 +51,9 @@ public class PlaneRigid : RigidBody
 	void loadComponents()
 	{
 		plane = (PlaneBase)GetChild(0);
+		gear = (RayCast)GetNode("Gear");
+		gpDown = (RayCast)GetNode("GPDown");
+		gpForward = (RayCast)GetNode("GPForward");
 		cockpit = (Cockpit)GetNodeOrNull("../../../Cockpit");//ez
 	}
 	
@@ -99,6 +109,7 @@ public class PlaneRigid : RigidBody
 		
 		state.ApplyImpulse(left, new Vector3(0, 0, planePhysics.GetLeftDrag(windPhysics) * delta));
 		state.ApplyImpulse(right, new Vector3(0, 0, planePhysics.GetRightDrag(windPhysics) * delta));
+		state.ApplyImpulse(tail, new Vector3(0, 0, planePhysics.GetTailDrag(windPhysics) * delta));
 
 		state.ApplyImpulse(tail, new Vector3(planePhysics.GetTotalSide(windPhysics) * delta, 0 ,0));
 
@@ -139,6 +150,11 @@ public class PlaneRigid : RigidBody
 		float eDrag = planePhysics.GetPartDrag(aerodynamics.Elevator, windPhysics);
 		float eSide = planePhysics.GetPartSide(aerodynamics.Elevator, windPhysics);
 		cockpit.SetElevator(eLift, eDrag, eSide);
+
+		float gLift = planePhysics.GetPartLift(aerodynamics.Gear, windPhysics);
+		float gDrag = planePhysics.GetPartDrag(aerodynamics.Gear, windPhysics);
+		float gSide = planePhysics.GetPartSide(aerodynamics.Gear, windPhysics);
+		cockpit.SetGear(gLift, gDrag, gSide);
 
 		cockpit.SetPitch((float)GeoLib.GameMath.RadToDeg(pitch));
 		cockpit.SetRoll((float)GeoLib.GameMath.RadToDeg(roll));
@@ -231,7 +247,25 @@ public class PlaneRigid : RigidBody
 			}
 		}
 
+		if (Input.IsActionJustPressed("gear"))
+			aerodynamics.Gear.Enabled = !aerodynamics.Gear.Enabled;
+
+		if (Input.IsActionPressed("brakes") && gearTouchingGround())
+			state.LinearVelocity *= new Vector3(0, 0, brakesDec);
+
+		if (gearTouchingGround())
+		{
+			Vector3 groundNormal = gear.GetCollisionNormal();
+			Transform landingRotation = state.Transform;
+			landingRotation.basis.y = groundNormal;
+			landingRotation.basis.x = -landingRotation.basis.z.Cross(groundNormal);
+			landingRotation.basis = landingRotation.basis.Orthonormalized();
+			state.Transform = state.Transform.InterpolateWith(landingRotation, 0.05f);
+		}
+		
 		aerodynamics.Update(delta);
 	}
+
+	bool gearTouchingGround() => gearUp && gear.IsColliding();
 }
 

@@ -9,6 +9,7 @@ namespace Shared.Objects
         public GenericSurfaceData Aileron {get; private set;}
         public GenericSurfaceData Elevator {get; private set;}
         public GenericSurfaceData Flap {get; private set;}
+        public GenericSurfaceData Gear {get; private set;}
         public GenericSurfaceData Rudder {get; private set;}
         public GenericSurfaceData Slat {get; private set;}
         public GenericSurfaceData Wing {get; private set;}
@@ -19,12 +20,13 @@ namespace Shared.Objects
         public float Length {get; private set;}
 
         public PlaneData(GenericSurfaceData aileron, GenericSurfaceData elevator, GenericSurfaceData flap,
-        GenericSurfaceData rudder, GenericSurfaceData slat, GenericSurfaceData wing, 
+        GenericSurfaceData gear, GenericSurfaceData rudder, GenericSurfaceData slat, GenericSurfaceData wing, 
         List<Tuple<EngineData, Localization>> engines, float length)
         {
             Aileron = aileron;
             Elevator = elevator;
             Flap = flap;
+            Gear = gear;
             Rudder = rudder;
             Slat = slat;
             Wing = wing;

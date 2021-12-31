@@ -14,6 +14,7 @@ namespace ClientCore
         public List<Engine> Engines {get; private set;} = new List<Engine>();
         public Flap LeftFlap {get; private set;}
         public Flap RightFlap {get; private set;}
+        public Gear Gear {get; private set;}
         public Rudder Rudder {get; private set;}
         public Slat LeftSlat {get; private set;}
         public Slat RightSlat {get; private set;}
@@ -25,6 +26,7 @@ namespace ClientCore
             LeftAileron = new Aileron(data.Left, data.Aileron);
             RightAileron = new Aileron(data.Right, data.Aileron);
             Elevator = new Elevator(data.Tail, data.Elevator);
+            Gear = new Gear(data.Tail, data.Gear);
             Engines = new List<Engine>();
             foreach (var e in data.Engines)
             {

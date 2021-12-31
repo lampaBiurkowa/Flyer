@@ -107,9 +107,8 @@ namespace ClientCore.Physics
             return rightDrag;
         }
 
-        public float GetTotalSide(WindPhysics wind)
-        {
-            return GetPartSide(AerodynamicsData.Rudder, wind);
-        }
+        public float GetTailDrag(WindPhysics wind) => GetPartDrag(AerodynamicsData.Gear, wind);
+
+        public float GetTotalSide(WindPhysics wind) => GetPartSide(AerodynamicsData.Rudder, wind);
     }
 }
