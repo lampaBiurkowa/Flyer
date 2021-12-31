@@ -25,7 +25,7 @@ public class PlaneRigid : RigidBody
 
 		//temp /drag,lift,side
 		GenericSurfaceData aileronSurface = new GenericSurfaceData(0, 3, 0);
-		GenericSurfaceData elevatorSurface = new GenericSurfaceData(0, 1, 0);
+		GenericSurfaceData elevatorSurface = new GenericSurfaceData(0, 2, 0);
 		GenericSurfaceData flapSurface = new GenericSurfaceData(0, 1, 0);
 		GenericSurfaceData rudderSurface = new GenericSurfaceData(0, 0, 10);
 		GenericSurfaceData wingSurface = new GenericSurfaceData(1, 60, 0);
@@ -78,9 +78,9 @@ public class PlaneRigid : RigidBody
 		leftLift = (totalLift * leftLiftPercentage) / 100f;
 		rightLift = totalLift - leftLift;
 
-		Vector3 left = new Vector3((float)planeData.Left.X, 0, (float)planeData.Left.Y);
-		Vector3 right = new Vector3((float)planeData.Right.X, 0, (float)planeData.Right.Y);
-		Vector3 tail = new Vector3((float)planeData.Tail.X, 0, (float)planeData.Tail.Y);
+		Vector3 left = new Vector3(GlobalTransform.basis.x * (float)planeData.Left.X);
+		Vector3 right = new Vector3(GlobalTransform.basis.x * (float)planeData.Right.X);
+		Vector3 tail = new Vector3(GlobalTransform.basis.z * (float)planeData.Tail.Y);
 		state.ApplyImpulse(left, new Vector3(0, leftLift, 0));
 		state.ApplyImpulse(right, new Vector3(0, rightLift, 0));
 
@@ -91,7 +91,7 @@ public class PlaneRigid : RigidBody
 		state.ApplyImpulse(left, GlobalTransform.basis.z * thrusts[0].Item2 * delta * -1);
 		state.ApplyImpulse(right, GlobalTransform.basis.z * thrusts[1].Item2 * delta * -1);
 
-		float fallForwardSpeed = planePhysics.GetDiveForwardSpeed() * 0.01f;
+		float fallForwardSpeed = planePhysics.GetDiveForwardSpeed() * 0.005f;
 		float realYSpeed = state.LinearVelocity.y;
 		float realXSpeed = state.LinearVelocity.x + (float)(fallForwardSpeed * Math.Sin(localRotation.Z));
 		float realZSpeed = state.LinearVelocity.z + (float)(-fallForwardSpeed * Math.Cos(localRotation.Z));
@@ -102,7 +102,7 @@ public class PlaneRigid : RigidBody
 
 		state.ApplyImpulse(tail, new Vector3(planePhysics.GetTotalSide(windPhysics) * delta, 0 ,0));
 
-		float elevatorLift = planePhysics.GetPartLift(aerodynamics.Elevator, windPhysics) * scale;
+		float elevatorLift = planePhysics.GetPartLift(aerodynamics.Elevator, windPhysics) * delta;// * scale;
 		state.ApplyImpulse(tail, new Vector3(0, elevatorLift, 0));
 		
 		cockpit.SetSpeed(planePhysics);//.GetAirspeed()
@@ -145,11 +145,33 @@ public class PlaneRigid : RigidBody
 		cockpit.SetYaw((float)GeoLib.GameMath.RadToDeg(yaw));
 
 		if (Input.IsActionPressed("thrustUp"))
-			foreach (var e in aerodynamics.Engines)
-				e.Update(true, delta);
+		{
+			if (Input.IsActionPressed("1") && aerodynamics.Engines.Count >= 1)
+				aerodynamics.Engines[0].Update(true, delta);
+			else if (Input.IsActionPressed("2") && aerodynamics.Engines.Count >= 2)
+				aerodynamics.Engines[1].Update(true, delta);
+			else if (Input.IsActionPressed("3") && aerodynamics.Engines.Count >= 3)
+				aerodynamics.Engines[2].Update(true, delta);
+			else if (Input.IsActionPressed("4") && aerodynamics.Engines.Count >= 4)
+				aerodynamics.Engines[3].Update(true, delta);
+			else
+				foreach (var e in aerodynamics.Engines)
+					e.Update(true, delta);
+		}
 		else if (Input.IsActionPressed("thrustDown"))
-			foreach (var e in aerodynamics.Engines)
-				e.Update(false, delta);
+		{
+			if (Input.IsActionPressed("1") && aerodynamics.Engines.Count >= 1)
+				aerodynamics.Engines[0].Update(false, delta);
+			else if (Input.IsActionPressed("2") && aerodynamics.Engines.Count >= 2)
+				aerodynamics.Engines[1].Update(false, delta);
+			else if (Input.IsActionPressed("3") && aerodynamics.Engines.Count >= 3)
+				aerodynamics.Engines[2].Update(false, delta);
+			else if (Input.IsActionPressed("4") && aerodynamics.Engines.Count >= 4)
+				aerodynamics.Engines[3].Update(false, delta);
+			else
+				foreach (var e in aerodynamics.Engines)
+					e.Update(false, delta);
+		}
 
 		if (Input.IsActionPressed("pitchUp"))
 			aerodynamics.Elevator.Move(true);
@@ -196,7 +218,15 @@ public class PlaneRigid : RigidBody
 
 		if (Input.IsActionJustPressed("flaps"))
 		{
-			
+			if (Input.IsActionPressed("left"))
+				aerodynamics.LeftFlap.SwitchConfiguration();
+			if (Input.IsActionPressed("right"))
+				aerodynamics.RightFlap.SwitchConfiguration();
+			else
+			{
+				aerodynamics.LeftFlap.SwitchConfiguration();
+				aerodynamics.RightFlap.SwitchConfiguration();
+			}
 		}
 
 		aerodynamics.Update(delta);

@@ -80,6 +80,7 @@ public class Cockpit : Control
 		flapsLabel.Text = $"L {lift.Item1} {lift.Item2} | D {drag.Item1} {drag.Item2} | S {side.Item1} {side.Item2}";
 	}
 
+
 	public void SetSlats(Tuple<float, float> lift, Tuple<float, float> drag, Tuple<float, float> side)
 	{
 		if (slatsLabel == null)
