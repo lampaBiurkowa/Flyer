@@ -1,0 +1,21 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://Scenes/Cockpit/Lever.tscn" type="PackedScene" id=1]
+[ext_resource path="res://Scripts/Cockpit/LeverPanel.cs" type="Script" id=2]
+
+[node name="LeverPanel" type="Panel"]
+margin_right = 220.0
+margin_bottom = 140.0
+script = ExtResource( 2 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="GearLever" parent="." instance=ExtResource( 1 )]
+position = Vector2( 10, 10 )
+
+[node name="FlapsLever" parent="." instance=ExtResource( 1 )]
+position = Vector2( 80, 10 )
+
+[node name="SlatsLever" parent="." instance=ExtResource( 1 )]
+position = Vector2( 150, 10 )

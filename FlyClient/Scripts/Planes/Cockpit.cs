@@ -1,6 +1,7 @@
 using Godot;
 using ClientCore.Physics;
 using ClientCore.Cockpit;
+using ClientCore.Physics.PlaneParts;
 using Shared;
 using System;
 using System.Collections.Generic;
@@ -23,6 +24,8 @@ public class Cockpit : Control
 	Label rollLabel;
 	Label yawLabel;
 	BasicT basicT;
+	LeverPanel leverPanel;
+	List<EnginePanel> enginePanels = new List<EnginePanel>();
 	float previousYaw = 0;
 	public override void _Ready()
 	{
@@ -52,15 +55,23 @@ public class Cockpit : Control
 		rollLabel = (Label)GetNode("Roll");
 		yawLabel = (Label)GetNode("Yaw");
 		basicT = (BasicT)GetNode("BasicT");
+		leverPanel = (LeverPanel)GetNode("LeverPanel");
+		enginePanels.Add((EnginePanel)GetNode("Engine1Panel"));
+		enginePanels.Add((EnginePanel)GetNode("Engine2Panel"));
 	}
 
-	public void SetEngines(List<Tuple<float, float>> thrust)
+	public void SetEngines(List<Tuple<float, float, float>> thrust, float maxThrust)
 	{
 		if (enginesLabel == null)
 			return;
 		string text = "";
 		for (int i = 0; i < thrust.Count; i++)
-			text += $"{i+1}:{thrust[i].Item1} ({thrust[i].Item2})";
+		{
+			float thrustPercentage = (thrust[i].Item1 / maxThrust) * 100;
+			enginePanels[i].SetFuel(thrust[i].Item3 / 10);
+			enginePanels[i].SetThrustPercentage(thrustPercentage);
+			text += $"{i+1}:{thrust[i].Item1} ({thrust[i].Item2} {thrustPercentage} {thrustPercentage % 10})";
+		}
 		
 		enginesLabel.Text = text;
 	}
@@ -73,21 +84,25 @@ public class Cockpit : Control
 		aileronsLabel.Text = $"L {lift.Item1} {lift.Item2} | D {drag.Item1} {drag.Item2} | S {side.Item1} {side.Item2}";
 	}
 
-	public void SetFlaps(Tuple<float, float> lift, Tuple<float, float> drag, Tuple<float, float> side)
+	public void SetFlaps(int flapConfiguration, Tuple<float, float> lift, Tuple<float, float> drag, Tuple<float, float> side)
 	{
 		if (flapsLabel == null)
 			return;
 
 		flapsLabel.Text = $"L {lift.Item1} {lift.Item2} | D {drag.Item1} {drag.Item2} | S {side.Item1} {side.Item2}";
+		
+		int state = (int)Flap.CONFIGURATION_COUNT - flapConfiguration - 1;
+		leverPanel.FlapsLever.Placement = state;
 	}
 
 
-	public void SetSlats(Tuple<float, float> lift, Tuple<float, float> drag, Tuple<float, float> side)
+	public void SetSlats(bool enabled, Tuple<float, float> lift, Tuple<float, float> drag, Tuple<float, float> side)
 	{
 		if (slatsLabel == null)
 			return;
 
 		slatsLabel.Text = $"L {lift.Item1} {lift.Item2} | D {drag.Item1} {drag.Item2} | S {side.Item1} {side.Item2}";
+		leverPanel.SlatsLever.Placement = enabled ? 0 : 1;
 	}
 
 	public void SetWings(Tuple<float, float> lift, Tuple<float, float> drag, Tuple<float, float> side)
@@ -98,12 +113,13 @@ public class Cockpit : Control
 		wingsLabel.Text = $"L {lift.Item1} {lift.Item2} | D {drag.Item1} {drag.Item2} | S {side.Item1} {side.Item2}";
 	}
 
-	public void SetGear(float lift, float drag, float side)
+	public void SetGear(bool enabled, float lift, float drag, float side)
 	{
 		if (gearLabel == null)
 			return;
 
 		gearLabel.Text = $"L {lift} | D {drag} | S {side}";
+		leverPanel.GearLever.Placement = enabled ? 0 : 1;
 	}
 
 	public void SetElevator(float lift, float drag, float side)

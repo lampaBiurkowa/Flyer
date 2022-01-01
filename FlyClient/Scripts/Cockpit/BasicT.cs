@@ -48,7 +48,11 @@ public class BasicT : Panel
 
 	public void SetAltimeter(float altitude)
 	{
-		altimeterAltitude.Text = $"{altitude}";
+		string text = $"{altitude}";
+		while (text.Length != altimeterData.DigitsToDisplay)
+			text = text.Insert(0, "0");
+
+		altimeterAltitude.Text = text;
 		float thirdDigit = (altitude / 100) % 10;
 		altimeter100Arrow.RotationDegrees = altimeterData.GetAngleForNumber(thirdDigit);
 		float fourthDigit = (altitude / 1000) % 10;

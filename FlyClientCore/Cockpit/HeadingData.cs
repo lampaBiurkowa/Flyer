@@ -9,7 +9,7 @@ namespace ClientCore.Cockpit
 
         public HeadingData()
         {
-            anglePerUnit = 360 / (10 * MathF.Pow(10, PRECISION));
+            anglePerUnit = 1 / (10 * MathF.Pow(10, PRECISION));
         }
 
         public float GetAngleForYaw(float yaw)

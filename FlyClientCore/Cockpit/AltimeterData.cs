@@ -5,6 +5,7 @@ namespace ClientCore.Cockpit
     public class AltimeterData
     {
         const float PRECISION = 2;
+        public int DigitsToDisplay => 5;
         float anglePerUnit;
         public AltimeterData()
         {

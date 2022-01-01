@@ -19,8 +19,7 @@ public class PlaneRigid : RigidBody
 	RayCast gpDown;
 	RayCast gpForward;
 
-	bool gearUp = true;
-	float brakesDec = 0.9f;
+	float brakesDec = 0.999f;
 
 	public override void _Ready()
 	{
@@ -94,10 +93,10 @@ public class PlaneRigid : RigidBody
 		state.ApplyImpulse(left, new Vector3(0, leftLift, 0));
 		state.ApplyImpulse(right, new Vector3(0, rightLift, 0));
 
-		List<Tuple<float, float>> thrusts = new List<Tuple<float, float>>();
+		List<Tuple<float, float, float>> thrusts = new List<Tuple<float, float, float>>();
 		foreach (var e in aerodynamics.Engines)
-			thrusts.Add(new Tuple<float, float>(e.CurrentSpeed, e.GetThrust(delta, windPhysics.GetDensity(flightData.Altitude))));
-		cockpit.SetEngines(thrusts);
+			thrusts.Add(new Tuple<float, float, float>(e.CurrentSpeed, e.GetThrust(delta, windPhysics.GetDensity(flightData.Altitude)), 55));
+		cockpit.SetEngines(thrusts, 30);
 		state.ApplyImpulse(left, GlobalTransform.basis.z * thrusts[0].Item2 * delta * -1);
 		state.ApplyImpulse(right, GlobalTransform.basis.z * thrusts[1].Item2 * delta * -1);
 
@@ -129,12 +128,12 @@ public class PlaneRigid : RigidBody
 		Tuple<float, float> fLift = new Tuple<float, float>(planePhysics.GetPartLift(aerodynamics.LeftFlap, windPhysics), planePhysics.GetPartLift(aerodynamics.RightFlap, windPhysics));
 		Tuple<float, float> fDrag = new Tuple<float, float>(planePhysics.GetPartDrag(aerodynamics.LeftFlap, windPhysics), planePhysics.GetPartDrag(aerodynamics.RightFlap, windPhysics));
 		Tuple<float, float> fSide = new Tuple<float, float>(planePhysics.GetPartSide(aerodynamics.LeftFlap, windPhysics), planePhysics.GetPartSide(aerodynamics.RightFlap, windPhysics));
-		cockpit.SetFlaps(fLift, fDrag, fSide);
+		cockpit.SetFlaps(aerodynamics.LeftFlap.CurrentConfiguration,fLift, fDrag, fSide);
 
 		Tuple<float, float> sLift = new Tuple<float, float>(planePhysics.GetPartLift(aerodynamics.LeftSlat, windPhysics), planePhysics.GetPartLift(aerodynamics.RightSlat, windPhysics));
 		Tuple<float, float> sDrag = new Tuple<float, float>(planePhysics.GetPartDrag(aerodynamics.LeftSlat, windPhysics), planePhysics.GetPartDrag(aerodynamics.RightSlat, windPhysics));
 		Tuple<float, float> sSide = new Tuple<float, float>(planePhysics.GetPartSide(aerodynamics.LeftSlat, windPhysics), planePhysics.GetPartSide(aerodynamics.RightSlat, windPhysics));
-		cockpit.SetSlats(sLift, sDrag, sSide);
+		cockpit.SetSlats(aerodynamics.LeftSlat.Enabled, sLift, sDrag, sSide);
 
 		Tuple<float, float> wLift = new Tuple<float, float>(planePhysics.GetPartLift(aerodynamics.LeftWing, windPhysics), planePhysics.GetPartLift(aerodynamics.LeftWing, windPhysics));
 		Tuple<float, float> wDrag = new Tuple<float, float>(planePhysics.GetPartDrag(aerodynamics.RightWing, windPhysics), planePhysics.GetPartDrag(aerodynamics.RightWing, windPhysics));
@@ -154,7 +153,7 @@ public class PlaneRigid : RigidBody
 		float gLift = planePhysics.GetPartLift(aerodynamics.Gear, windPhysics);
 		float gDrag = planePhysics.GetPartDrag(aerodynamics.Gear, windPhysics);
 		float gSide = planePhysics.GetPartSide(aerodynamics.Gear, windPhysics);
-		cockpit.SetGear(gLift, gDrag, gSide);
+		cockpit.SetGear(aerodynamics.Gear.Enabled, gLift, gDrag, gSide);
 
 		cockpit.SetPitch((float)GeoLib.GameMath.RadToDeg(pitch));
 		cockpit.SetRoll((float)GeoLib.GameMath.RadToDeg(roll));
@@ -251,7 +250,7 @@ public class PlaneRigid : RigidBody
 			aerodynamics.Gear.Enabled = !aerodynamics.Gear.Enabled;
 
 		if (Input.IsActionPressed("brakes") && gearTouchingGround())
-			state.LinearVelocity *= new Vector3(0, 0, brakesDec);
+			state.LinearVelocity *= new Vector3(1, 1, brakesDec);
 
 		if (gearTouchingGround())
 		{
@@ -266,6 +265,6 @@ public class PlaneRigid : RigidBody
 		aerodynamics.Update(delta);
 	}
 
-	bool gearTouchingGround() => gearUp && gear.IsColliding();
+	bool gearTouchingGround() => aerodynamics.Gear.Enabled && gear.IsColliding();
 }
 

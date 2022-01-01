@@ -11,7 +11,7 @@ namespace ClientCore.Cockpit
 
         public VerticalSpeedData()
         {
-            anglePerUnit = 360 / (10 * MathF.Pow(10, PRECISION));
+            anglePerUnit = 180 / (10 * MathF.Pow(10, PRECISION));
         }
 
         public float GetAngleForSpeed(float speed)
@@ -22,7 +22,8 @@ namespace ClientCore.Cockpit
                 speedAbs = MAX_SPEED;
             else if (speedAbs < MIN_SPEED)
                 speedAbs = MIN_SPEED;
-            return (speedAbs - MIN_SPEED) * anglePerUnit * speedSign;
+            float scale = ((speedAbs - MIN_SPEED) / MAX_SPEED) * 100;
+            return scale * anglePerUnit * speedSign;
         }
     }
 }

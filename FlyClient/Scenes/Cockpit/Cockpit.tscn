@@ -1,0 +1,354 @@
+[gd_scene load_steps=7 format=2]
+
+[ext_resource path="res://Scripts/Planes/Cockpit.cs" type="Script" id=1]
+[ext_resource path="res://Scenes/Cockpit/LeverPanel.tscn" type="PackedScene" id=2]
+[ext_resource path="res://Resources/Fonts/font.tres" type="DynamicFontData" id=3]
+[ext_resource path="res://Scenes/Cockpit/BasicT.tscn" type="PackedScene" id=4]
+[ext_resource path="res://Scenes/Cockpit/EnginePanel.tscn" type="PackedScene" id=5]
+
+[sub_resource type="DynamicFont" id=10]
+size = 24
+outline_color = Color( 1, 0, 0, 1 )
+font_data = ExtResource( 3 )
+
+[node name="Cockpit" type="Control"]
+margin_right = 40.0
+margin_bottom = 40.0
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="SpeedText" type="Label" parent="."]
+margin_left = 754.906
+margin_top = 318.363
+margin_right = 832.906
+margin_bottom = 346.363
+custom_colors/font_color = Color( 1, 0, 0, 1 )
+custom_fonts/font = SubResource( 10 )
+text = "Speed:"
+
+[node name="AltitudeText" type="Label" parent="."]
+margin_left = 754.906
+margin_top = 268.363
+margin_right = 858.906
+margin_bottom = 296.363
+custom_colors/font_color = Color( 1, 0, 0, 1 )
+custom_fonts/font = SubResource( 10 )
+text = "Altitude"
+
+[node name="LiftText" type="Label" parent="."]
+margin_left = 754.906
+margin_top = 218.363
+margin_right = 832.906
+margin_bottom = 246.363
+custom_colors/font_color = Color( 1, 0, 0, 1 )
+custom_fonts/font = SubResource( 10 )
+text = "Lift"
+
+[node name="WeightText" type="Label" parent="."]
+margin_left = 754.906
+margin_top = 168.363
+margin_right = 832.906
+margin_bottom = 196.363
+custom_colors/font_color = Color( 1, 0, 0, 1 )
+custom_fonts/font = SubResource( 10 )
+text = "Weight"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="AileronText" type="Label" parent="."]
+margin_left = 754.906
+margin_top = 118.363
+margin_right = 845.906
+margin_bottom = 146.363
+custom_colors/font_color = Color( 1, 0, 0, 1 )
+custom_fonts/font = SubResource( 10 )
+text = "Aileron"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="FlapText" type="Label" parent="."]
+margin_left = 754.906
+margin_top = 68.3629
+margin_right = 845.906
+margin_bottom = 96.3629
+custom_colors/font_color = Color( 1, 0, 0, 1 )
+custom_fonts/font = SubResource( 10 )
+text = "Flaps"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ElevatorText" type="Label" parent="."]
+margin_left = 754.906
+margin_top = 18.3629
+margin_right = 858.906
+margin_bottom = 46.3629
+custom_colors/font_color = Color( 1, 0, 0, 1 )
+custom_fonts/font = SubResource( 10 )
+text = "Elevator"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="RudderText" type="Label" parent="."]
+margin_left = 50.0
+margin_top = 350.0
+margin_right = 154.0
+margin_bottom = 378.0
+custom_colors/font_color = Color( 1, 0, 0, 1 )
+custom_fonts/font = SubResource( 10 )
+text = "Rudder"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="SlatsText" type="Label" parent="."]
+margin_left = 50.0
+margin_top = 300.0
+margin_right = 154.0
+margin_bottom = 328.0
+custom_colors/font_color = Color( 1, 0, 0, 1 )
+custom_fonts/font = SubResource( 10 )
+text = "Slats"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="WingsText" type="Label" parent="."]
+margin_left = 50.0
+margin_top = 250.0
+margin_right = 154.0
+margin_bottom = 278.0
+custom_colors/font_color = Color( 1, 0, 0, 1 )
+custom_fonts/font = SubResource( 10 )
+text = "Wings"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="EnginesText" type="Label" parent="."]
+margin_left = 50.0
+margin_top = 200.0
+margin_right = 154.0
+margin_bottom = 228.0
+custom_colors/font_color = Color( 1, 0, 0, 1 )
+custom_fonts/font = SubResource( 10 )
+text = "Engines"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="PitchText" type="Label" parent="."]
+margin_left = 50.0
+margin_top = 150.0
+margin_right = 154.0
+margin_bottom = 178.0
+custom_colors/font_color = Color( 1, 0, 0, 1 )
+custom_fonts/font = SubResource( 10 )
+text = "Pitch"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="RollText" type="Label" parent="."]
+margin_left = 50.0
+margin_top = 100.0
+margin_right = 154.0
+margin_bottom = 128.0
+custom_colors/font_color = Color( 1, 0, 0, 1 )
+custom_fonts/font = SubResource( 10 )
+text = "Roll"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="YawText" type="Label" parent="."]
+margin_left = 50.0
+margin_top = 50.0
+margin_right = 154.0
+margin_bottom = 78.0
+custom_colors/font_color = Color( 1, 0, 0, 1 )
+custom_fonts/font = SubResource( 10 )
+text = "Yaw"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="GearText" type="Label" parent="."]
+margin_left = 50.0
+margin_right = 154.0
+margin_bottom = 28.0
+custom_colors/font_color = Color( 1, 0, 0, 1 )
+custom_fonts/font = SubResource( 10 )
+text = "Gear"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Lift" type="Label" parent="."]
+margin_left = 864.906
+margin_top = 218.363
+margin_right = 942.906
+margin_bottom = 246.363
+custom_colors/font_color = Color( 1, 0, 0, 1 )
+custom_fonts/font = SubResource( 10 )
+
+[node name="Weight" type="Label" parent="."]
+margin_left = 864.906
+margin_top = 168.363
+margin_right = 942.906
+margin_bottom = 196.363
+custom_colors/font_color = Color( 1, 0, 0, 1 )
+custom_fonts/font = SubResource( 10 )
+
+[node name="Ailerons" type="Label" parent="."]
+margin_left = 864.906
+margin_top = 118.363
+margin_right = 942.906
+margin_bottom = 146.363
+custom_colors/font_color = Color( 1, 0, 0, 1 )
+custom_fonts/font = SubResource( 10 )
+
+[node name="Flaps" type="Label" parent="."]
+margin_left = 864.906
+margin_top = 68.3629
+margin_right = 942.906
+margin_bottom = 96.3629
+custom_colors/font_color = Color( 1, 0, 0, 1 )
+custom_fonts/font = SubResource( 10 )
+
+[node name="Elevator" type="Label" parent="."]
+margin_left = 864.906
+margin_top = 18.3629
+margin_right = 942.906
+margin_bottom = 46.3629
+custom_colors/font_color = Color( 1, 0, 0, 1 )
+custom_fonts/font = SubResource( 10 )
+
+[node name="Rudder" type="Label" parent="."]
+margin_left = 160.0
+margin_top = 350.0
+margin_right = 238.0
+margin_bottom = 378.0
+custom_colors/font_color = Color( 1, 0, 0, 1 )
+custom_fonts/font = SubResource( 10 )
+
+[node name="Slats" type="Label" parent="."]
+margin_left = 160.0
+margin_top = 300.0
+margin_right = 238.0
+margin_bottom = 328.0
+custom_colors/font_color = Color( 1, 0, 0, 1 )
+custom_fonts/font = SubResource( 10 )
+
+[node name="Wings" type="Label" parent="."]
+margin_left = 160.0
+margin_top = 250.0
+margin_right = 238.0
+margin_bottom = 278.0
+custom_colors/font_color = Color( 1, 0, 0, 1 )
+custom_fonts/font = SubResource( 10 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Engines" type="Label" parent="."]
+margin_left = 160.0
+margin_top = 200.0
+margin_right = 238.0
+margin_bottom = 228.0
+custom_colors/font_color = Color( 1, 0, 0, 1 )
+custom_fonts/font = SubResource( 10 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Pitch" type="Label" parent="."]
+margin_left = 160.0
+margin_top = 150.0
+margin_right = 238.0
+margin_bottom = 178.0
+custom_colors/font_color = Color( 1, 0, 0, 1 )
+custom_fonts/font = SubResource( 10 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Roll" type="Label" parent="."]
+margin_left = 160.0
+margin_top = 100.0
+margin_right = 238.0
+margin_bottom = 128.0
+custom_colors/font_color = Color( 1, 0, 0, 1 )
+custom_fonts/font = SubResource( 10 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Yaw" type="Label" parent="."]
+margin_left = 160.0
+margin_top = 50.0
+margin_right = 238.0
+margin_bottom = 78.0
+custom_colors/font_color = Color( 1, 0, 0, 1 )
+custom_fonts/font = SubResource( 10 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Gear" type="Label" parent="."]
+margin_left = 160.0
+margin_right = 238.0
+margin_bottom = 28.0
+custom_colors/font_color = Color( 1, 0, 0, 1 )
+custom_fonts/font = SubResource( 10 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Altitude" type="Label" parent="."]
+margin_left = 864.906
+margin_top = 268.363
+margin_right = 942.906
+margin_bottom = 296.363
+custom_colors/font_color = Color( 1, 0, 0, 1 )
+custom_fonts/font = SubResource( 10 )
+
+[node name="Speed" type="Label" parent="."]
+margin_left = 864.906
+margin_top = 318.363
+margin_right = 942.906
+margin_bottom = 346.363
+custom_colors/font_color = Color( 1, 0, 0, 1 )
+custom_fonts/font = SubResource( 10 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="LeverPanel" parent="." instance=ExtResource( 2 )]
+margin_left = 545.0
+margin_top = 630.0
+margin_right = 765.0
+margin_bottom = 770.0
+
+[node name="BasicT" parent="." instance=ExtResource( 4 )]
+margin_left = 765.0
+margin_top = 390.0
+margin_right = 1365.0
+margin_bottom = 770.0
+
+[node name="Engine1Panel" parent="." instance=ExtResource( 5 )]
+margin_left = 145.0
+margin_top = 390.0
+margin_right = 345.0
+margin_bottom = 770.0
+
+[node name="Engine2Panel" parent="." instance=ExtResource( 5 )]
+margin_left = 345.0
+margin_top = 390.0
+margin_right = 545.0
+margin_bottom = 770.0
