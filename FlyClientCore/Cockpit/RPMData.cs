@@ -12,8 +12,8 @@ namespace ClientCore.Cockpit
         float anglePerUnitSmallArrow;
         public RPMData()
         {
-            anglePerUnitSmallArrow = SMALL_ARROW_MAX_ANGLE / (10 * MathF.Pow(10, PRECISION));
-            anglePerUnitBigArrow = (BIG_ARROW_MAX_ANGLE / BIG_ARROW_MAX_VALUE) / (10 * MathF.Pow(10, PRECISION));
+            anglePerUnitSmallArrow = SMALL_ARROW_MAX_ANGLE / MathF.Pow(10, PRECISION);
+            anglePerUnitBigArrow = (BIG_ARROW_MAX_ANGLE / BIG_ARROW_MAX_VALUE) / MathF.Pow(10, PRECISION);
         }
 
         public float GetSmallArrowAngleForNumber(float number)

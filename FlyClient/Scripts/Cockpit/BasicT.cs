@@ -49,7 +49,7 @@ public class BasicT : Panel
 	public void SetAltimeter(float altitude)
 	{
 		string text = $"{altitude}";
-		while (text.Length != altimeterData.DigitsToDisplay)
+		while (text.Length < altimeterData.DigitsToDisplay)
 			text = text.Insert(0, "0");
 
 		altimeterAltitude.Text = text;

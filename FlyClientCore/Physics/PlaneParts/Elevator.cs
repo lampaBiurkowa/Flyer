@@ -7,7 +7,7 @@ namespace ClientCore.Physics.PlaneParts
     public class Elevator : Part, IAerodynamic
     {
         GenericSurfaceData data;
-        const float MAX_ANGLE = 45;
+        const float MAX_ANGLE = 30;
 
         private float angleDegrees = 0;
         public float AngleDegrees

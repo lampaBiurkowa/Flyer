@@ -1,0 +1,26 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://Scenes/Cockpit/Minimap.tscn" type="PackedScene" id=1]
+[ext_resource path="res://Scenes/Cockpit/Radar.tscn" type="PackedScene" id=2]
+[ext_resource path="res://Resources/Planes/Cockpit/frame.png" type="Texture" id=3]
+
+[node name="NavigationPanel" type="Panel"]
+margin_right = 200.0
+margin_bottom = 380.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Radar" parent="." instance=ExtResource( 2 )]
+scale = Vector2( 0.6, 0.6 )
+offset = Vector2( 10, 10 )
+
+[node name="RadarFrame" type="Sprite" parent="Radar"]
+position = Vector2( 20, 15 )
+scale = Vector2( 0.5, 0.5 )
+texture = ExtResource( 3 )
+centered = false
+
+[node name="Minimap" parent="." instance=ExtResource( 1 )]
+position = Vector2( 100, 280 )
+scale = Vector2( 0.6, 0.6 )

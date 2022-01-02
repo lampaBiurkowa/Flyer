@@ -2,10 +2,11 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using ClientCore;
+using ClientCore.Cockpit;
 using ClientCore.Physics;
 using ClientCore.Physics.PlaneParts;
-using Shared;
 using Shared.Objects;
+using Shared.Plane;
 
 public class PlaneRigid : RigidBody
 {
@@ -13,13 +14,15 @@ public class PlaneRigid : RigidBody
 	PlanePhysics planePhysics;
 	WindPhysics windPhysics;
 	Cockpit cockpit;
-	AerodynamicsData aerodynamics;
 	PlaneData planeData;
+	MachineData machineData;
 	RayCast gear;
 	RayCast gpDown;
 	RayCast gpForward;
-
-	float brakesDec = 0.999f;
+	Camera viewportCamera;
+	Camera planeCamera;
+	MinimapData minimapData = new MinimapData(1);
+	Viewport viewport;
 
 	public override void _Ready()
 	{
@@ -30,7 +33,7 @@ public class PlaneRigid : RigidBody
 
 		//temp /drag,lift,side
 		GenericSurfaceData aileronSurface = new GenericSurfaceData(0, 3, 0);
-		GenericSurfaceData elevatorSurface = new GenericSurfaceData(0, 2, 0);
+		GenericSurfaceData elevatorSurface = new GenericSurfaceData(0, 1, 0);
 		GenericSurfaceData flapSurface = new GenericSurfaceData(0, 1, 0);
 		GenericSurfaceData rudderSurface = new GenericSurfaceData(0, 0, 10);
 		GenericSurfaceData wingSurface = new GenericSurfaceData(1, 60, 0);
@@ -42,9 +45,11 @@ public class PlaneRigid : RigidBody
 		List<Tuple<EngineData, Localization>> engines = new List<Tuple<EngineData, Localization>>();
 		engines.Add(new Tuple<EngineData, Localization>(engine, Localization.LEFT));
 		engines.Add(new Tuple<EngineData, Localization>(engine, Localization.RIGHT));
-		planeData = new PlaneData(aileronSurface, elevatorSurface, flapSurface, gearSurface, rudderSurface, slatSurface, wingSurface, engines, length);
-		aerodynamics = new AerodynamicsData(planeData);
+		machineData = new MachineData(aileronSurface, elevatorSurface, flapSurface, gearSurface, rudderSurface, slatSurface, wingSurface, engines, length);
+		planeData = new PlaneData(machineData);
 		//
+		Spatial terrain = (Spatial)GetNode("../");
+		cockpit.SetTerrainSize(new Vector2(-terrain.Translation.z, -terrain.Translation.x));
 	}
 
 	void loadComponents()
@@ -54,6 +59,10 @@ public class PlaneRigid : RigidBody
 		gpDown = (RayCast)GetNode("GPDown");
 		gpForward = (RayCast)GetNode("GPForward");
 		cockpit = (Cockpit)GetNodeOrNull("../../../Cockpit");//ez
+		planeCamera = (Camera)GetNode("Camera");
+		viewportCamera = (Camera)GetNodeOrNull("../MinimapCamera");
+		viewport = (Viewport)GetNodeOrNull("../../");
+		planeCamera.Current = true;
 	}
 	
 	public override void _IntegrateForces(PhysicsDirectBodyState state)
@@ -67,11 +76,11 @@ public class PlaneRigid : RigidBody
 		float localRotationScale = (float)GeoLib.GameMath.DegToRad(90);
 		float roll = -GlobalTransform.basis.y.x * localRotationScale;
 		float pitch = GlobalTransform.basis.y.z * localRotationScale;
-		float yaw = GlobalTransform.basis.z.x * localRotationScale;
+		float yaw = Rotation.y;//GlobalTransform.basis.z.x * localRotationScale;
 		GeoLib.Vector3 localRotation = new GeoLib.Vector3(roll, pitch, yaw);
 
 		FlightData flightData = new FlightData(translation, rotation, velocity);
-		planePhysics = new PlanePhysics(flightData, planeData, aerodynamics);
+		planePhysics = new PlanePhysics(flightData, machineData, planeData);
 		planePhysics.Update(flightData, localRotation);
 
 		float leftLift = planePhysics.GetLeftLift(windPhysics) * delta;
@@ -87,14 +96,14 @@ public class PlaneRigid : RigidBody
 		leftLift = (totalLift * leftLiftPercentage) / 100f;
 		rightLift = totalLift - leftLift;
 
-		Vector3 left = new Vector3(GlobalTransform.basis.x * (float)planeData.Left.X);
-		Vector3 right = new Vector3(GlobalTransform.basis.x * (float)planeData.Right.X);
-		Vector3 tail = new Vector3(GlobalTransform.basis.z * (float)planeData.Tail.Y);
+		Vector3 left = new Vector3(GlobalTransform.basis.x * (float)machineData.Left.X);
+		Vector3 right = new Vector3(GlobalTransform.basis.x * (float)machineData.Right.X);
+		Vector3 tail = new Vector3(GlobalTransform.basis.z * (float)machineData.Tail.Y);
 		state.ApplyImpulse(left, new Vector3(0, leftLift, 0));
 		state.ApplyImpulse(right, new Vector3(0, rightLift, 0));
 
 		List<Tuple<float, float, float>> thrusts = new List<Tuple<float, float, float>>();
-		foreach (var e in aerodynamics.Engines)
+		foreach (var e in planeData.Engines)
 			thrusts.Add(new Tuple<float, float, float>(e.CurrentSpeed, e.GetThrust(delta, windPhysics.GetDensity(flightData.Altitude)), 55));
 		cockpit.SetEngines(thrusts, 30);
 		state.ApplyImpulse(left, GlobalTransform.basis.z * thrusts[0].Item2 * delta * -1);
@@ -106,13 +115,13 @@ public class PlaneRigid : RigidBody
 		float realZSpeed = state.LinearVelocity.z + (float)(-fallForwardSpeed * Math.Cos(localRotation.Z));
 		state.LinearVelocity = new Vector3(realXSpeed, realYSpeed, realZSpeed);
 		
-		state.ApplyImpulse(left, new Vector3(0, 0, planePhysics.GetLeftDrag(windPhysics) * delta));
-		state.ApplyImpulse(right, new Vector3(0, 0, planePhysics.GetRightDrag(windPhysics) * delta));
+		state.ApplyImpulse(left, new Vector3(0, 0, planePhysics.GetLeftDrag(windPhysics, roll) * delta));
+		state.ApplyImpulse(right, new Vector3(0, 0, planePhysics.GetRightDrag(windPhysics, roll) * delta));
 		state.ApplyImpulse(tail, new Vector3(0, 0, planePhysics.GetTailDrag(windPhysics) * delta));
 
 		state.ApplyImpulse(tail, new Vector3(planePhysics.GetTotalSide(windPhysics) * delta, 0 ,0));
 
-		float elevatorLift = planePhysics.GetPartLift(aerodynamics.Elevator, windPhysics) * delta;// * scale;
+		float elevatorLift = planePhysics.GetPartLift(planeData.Elevator, windPhysics) * delta;// * scale;
 		state.ApplyImpulse(tail, new Vector3(0, elevatorLift, 0));
 		
 		cockpit.SetSpeed(planePhysics);//.GetAirspeed()
@@ -120,137 +129,143 @@ public class PlaneRigid : RigidBody
 		cockpit.SetAltitude(flightData.Altitude);
 		cockpit.SetWeight(weight * delta);
 
-		Tuple<float, float> aLift = new Tuple<float, float>(planePhysics.GetPartLift(aerodynamics.LeftAileron, windPhysics), planePhysics.GetPartLift(aerodynamics.RightAileron, windPhysics));
-		Tuple<float, float> aDrag = new Tuple<float, float>(planePhysics.GetPartDrag(aerodynamics.LeftAileron, windPhysics), planePhysics.GetPartDrag(aerodynamics.RightAileron, windPhysics));
-		Tuple<float, float> aSide = new Tuple<float, float>(planePhysics.GetPartSide(aerodynamics.LeftAileron, windPhysics), planePhysics.GetPartSide(aerodynamics.RightAileron, windPhysics));
+		Tuple<float, float> aLift = new Tuple<float, float>(planePhysics.GetPartLift(planeData.LeftAileron, windPhysics), planePhysics.GetPartLift(planeData.RightAileron, windPhysics));
+		Tuple<float, float> aDrag = new Tuple<float, float>(planePhysics.GetPartDrag(planeData.LeftAileron, windPhysics), planePhysics.GetPartDrag(planeData.RightAileron, windPhysics));
+		Tuple<float, float> aSide = new Tuple<float, float>(planePhysics.GetPartSide(planeData.LeftAileron, windPhysics), planePhysics.GetPartSide(planeData.RightAileron, windPhysics));
 		cockpit.SetAilerons(aLift, aDrag, aSide);
 
-		Tuple<float, float> fLift = new Tuple<float, float>(planePhysics.GetPartLift(aerodynamics.LeftFlap, windPhysics), planePhysics.GetPartLift(aerodynamics.RightFlap, windPhysics));
-		Tuple<float, float> fDrag = new Tuple<float, float>(planePhysics.GetPartDrag(aerodynamics.LeftFlap, windPhysics), planePhysics.GetPartDrag(aerodynamics.RightFlap, windPhysics));
-		Tuple<float, float> fSide = new Tuple<float, float>(planePhysics.GetPartSide(aerodynamics.LeftFlap, windPhysics), planePhysics.GetPartSide(aerodynamics.RightFlap, windPhysics));
-		cockpit.SetFlaps(aerodynamics.LeftFlap.CurrentConfiguration,fLift, fDrag, fSide);
+		Tuple<float, float> fLift = new Tuple<float, float>(planePhysics.GetPartLift(planeData.LeftFlap, windPhysics), planePhysics.GetPartLift(planeData.RightFlap, windPhysics));
+		Tuple<float, float> fDrag = new Tuple<float, float>(planePhysics.GetPartDrag(planeData.LeftFlap, windPhysics), planePhysics.GetPartDrag(planeData.RightFlap, windPhysics));
+		Tuple<float, float> fSide = new Tuple<float, float>(planePhysics.GetPartSide(planeData.LeftFlap, windPhysics), planePhysics.GetPartSide(planeData.RightFlap, windPhysics));
+		cockpit.SetFlaps(planeData.LeftFlap.CurrentConfiguration,fLift, fDrag, fSide);
 
-		Tuple<float, float> sLift = new Tuple<float, float>(planePhysics.GetPartLift(aerodynamics.LeftSlat, windPhysics), planePhysics.GetPartLift(aerodynamics.RightSlat, windPhysics));
-		Tuple<float, float> sDrag = new Tuple<float, float>(planePhysics.GetPartDrag(aerodynamics.LeftSlat, windPhysics), planePhysics.GetPartDrag(aerodynamics.RightSlat, windPhysics));
-		Tuple<float, float> sSide = new Tuple<float, float>(planePhysics.GetPartSide(aerodynamics.LeftSlat, windPhysics), planePhysics.GetPartSide(aerodynamics.RightSlat, windPhysics));
-		cockpit.SetSlats(aerodynamics.LeftSlat.Enabled, sLift, sDrag, sSide);
+		Tuple<float, float> sLift = new Tuple<float, float>(planePhysics.GetPartLift(planeData.LeftSlat, windPhysics), planePhysics.GetPartLift(planeData.RightSlat, windPhysics));
+		Tuple<float, float> sDrag = new Tuple<float, float>(planePhysics.GetPartDrag(planeData.LeftSlat, windPhysics), planePhysics.GetPartDrag(planeData.RightSlat, windPhysics));
+		Tuple<float, float> sSide = new Tuple<float, float>(planePhysics.GetPartSide(planeData.LeftSlat, windPhysics), planePhysics.GetPartSide(planeData.RightSlat, windPhysics));
+		cockpit.SetSlats(planeData.LeftSlat.Enabled, sLift, sDrag, sSide);
 
-		Tuple<float, float> wLift = new Tuple<float, float>(planePhysics.GetPartLift(aerodynamics.LeftWing, windPhysics), planePhysics.GetPartLift(aerodynamics.LeftWing, windPhysics));
-		Tuple<float, float> wDrag = new Tuple<float, float>(planePhysics.GetPartDrag(aerodynamics.RightWing, windPhysics), planePhysics.GetPartDrag(aerodynamics.RightWing, windPhysics));
-		Tuple<float, float> wSide = new Tuple<float, float>(planePhysics.GetPartSide(aerodynamics.LeftWing, windPhysics), planePhysics.GetPartSide(aerodynamics.RightWing, windPhysics));
+		Tuple<float, float> wLift = new Tuple<float, float>(planePhysics.GetPartLift(planeData.LeftWing, windPhysics), planePhysics.GetPartLift(planeData.LeftWing, windPhysics));
+		Tuple<float, float> wDrag = new Tuple<float, float>(planePhysics.GetPartDrag(planeData.RightWing, windPhysics), planePhysics.GetPartDrag(planeData.RightWing, windPhysics));
+		Tuple<float, float> wSide = new Tuple<float, float>(planePhysics.GetPartSide(planeData.LeftWing, windPhysics), planePhysics.GetPartSide(planeData.RightWing, windPhysics));
 		cockpit.SetWings(wLift, wDrag, wSide);
 
-		float rLift = planePhysics.GetPartLift(aerodynamics.Rudder, windPhysics);
-		float rDrag = planePhysics.GetPartDrag(aerodynamics.Rudder, windPhysics);
-		float rSide = planePhysics.GetPartSide(aerodynamics.Rudder, windPhysics);
+		float rLift = planePhysics.GetPartLift(planeData.Rudder, windPhysics);
+		float rDrag = planePhysics.GetPartDrag(planeData.Rudder, windPhysics);
+		float rSide = planePhysics.GetPartSide(planeData.Rudder, windPhysics);
 		cockpit.SetRudder(rLift, rDrag, rSide);
 
-		float eLift = planePhysics.GetPartLift(aerodynamics.Elevator, windPhysics) * scale;
-		float eDrag = planePhysics.GetPartDrag(aerodynamics.Elevator, windPhysics);
-		float eSide = planePhysics.GetPartSide(aerodynamics.Elevator, windPhysics);
+		float eLift = planePhysics.GetPartLift(planeData.Elevator, windPhysics) * scale;
+		float eDrag = planePhysics.GetPartDrag(planeData.Elevator, windPhysics);
+		float eSide = planePhysics.GetPartSide(planeData.Elevator, windPhysics);
 		cockpit.SetElevator(eLift, eDrag, eSide);
 
-		float gLift = planePhysics.GetPartLift(aerodynamics.Gear, windPhysics);
-		float gDrag = planePhysics.GetPartDrag(aerodynamics.Gear, windPhysics);
-		float gSide = planePhysics.GetPartSide(aerodynamics.Gear, windPhysics);
-		cockpit.SetGear(aerodynamics.Gear.Enabled, gLift, gDrag, gSide);
+		float gLift = planePhysics.GetPartLift(planeData.Gear, windPhysics);
+		float gDrag = planePhysics.GetPartDrag(planeData.Gear, windPhysics);
+		float gSide = planePhysics.GetPartSide(planeData.Gear, windPhysics);
+		cockpit.SetGear(planeData.Gear.Enabled, gLift, gDrag, gSide);
 
 		cockpit.SetPitch((float)GeoLib.GameMath.RadToDeg(pitch));
 		cockpit.SetRoll((float)GeoLib.GameMath.RadToDeg(roll));
 		cockpit.SetYaw((float)GeoLib.GameMath.RadToDeg(yaw));
 
 		cockpit.SetAH((float)GeoLib.GameMath.RadToDeg(pitch), (float)GeoLib.GameMath.RadToDeg(roll));
+		cockpit.SetMinimap(Translation.x, Translation.z, (float)GeoLib.GameMath.RadToDeg(yaw));
 
 		if (Input.IsActionPressed("thrustUp"))
 		{
-			if (Input.IsActionPressed("1") && aerodynamics.Engines.Count >= 1)
-				aerodynamics.Engines[0].Update(true, delta);
-			else if (Input.IsActionPressed("2") && aerodynamics.Engines.Count >= 2)
-				aerodynamics.Engines[1].Update(true, delta);
-			else if (Input.IsActionPressed("3") && aerodynamics.Engines.Count >= 3)
-				aerodynamics.Engines[2].Update(true, delta);
-			else if (Input.IsActionPressed("4") && aerodynamics.Engines.Count >= 4)
-				aerodynamics.Engines[3].Update(true, delta);
+			if (Input.IsActionPressed("1") && planeData.Engines.Count >= 1)
+				planeData.Engines[0].Update(true, delta);
+			else if (Input.IsActionPressed("2") && planeData.Engines.Count >= 2)
+				planeData.Engines[1].Update(true, delta);
+			else if (Input.IsActionPressed("3") && planeData.Engines.Count >= 3)
+				planeData.Engines[2].Update(true, delta);
+			else if (Input.IsActionPressed("4") && planeData.Engines.Count >= 4)
+				planeData.Engines[3].Update(true, delta);
 			else
-				foreach (var e in aerodynamics.Engines)
+				foreach (var e in planeData.Engines)
 					e.Update(true, delta);
 		}
 		else if (Input.IsActionPressed("thrustDown"))
 		{
-			if (Input.IsActionPressed("1") && aerodynamics.Engines.Count >= 1)
-				aerodynamics.Engines[0].Update(false, delta);
-			else if (Input.IsActionPressed("2") && aerodynamics.Engines.Count >= 2)
-				aerodynamics.Engines[1].Update(false, delta);
-			else if (Input.IsActionPressed("3") && aerodynamics.Engines.Count >= 3)
-				aerodynamics.Engines[2].Update(false, delta);
-			else if (Input.IsActionPressed("4") && aerodynamics.Engines.Count >= 4)
-				aerodynamics.Engines[3].Update(false, delta);
+			if (Input.IsActionPressed("1") && planeData.Engines.Count >= 1)
+				planeData.Engines[0].Update(false, delta);
+			else if (Input.IsActionPressed("2") && planeData.Engines.Count >= 2)
+				planeData.Engines[1].Update(false, delta);
+			else if (Input.IsActionPressed("3") && planeData.Engines.Count >= 3)
+				planeData.Engines[2].Update(false, delta);
+			else if (Input.IsActionPressed("4") && planeData.Engines.Count >= 4)
+				planeData.Engines[3].Update(false, delta);
 			else
-				foreach (var e in aerodynamics.Engines)
+				foreach (var e in planeData.Engines)
 					e.Update(false, delta);
 		}
 
 		if (Input.IsActionPressed("pitchUp"))
-			aerodynamics.Elevator.Move(true);
+			planeData.Elevator.Move(true);
 		else if (Input.IsActionPressed("pitchDown"))
-			aerodynamics.Elevator.Move(false);
+			planeData.Elevator.Move(false);
 		else
-			aerodynamics.Elevator.Level();
+			planeData.Elevator.Level();
 
 		if (Input.IsActionPressed("rudderLeft"))
-			aerodynamics.Rudder.Move(true);
+			planeData.Rudder.Move(true);
 		else if (Input.IsActionPressed("rudderRight"))
-			aerodynamics.Rudder.Move(false);
+			planeData.Rudder.Move(false);
 		else
-			aerodynamics.Rudder.Level();
+			planeData.Rudder.Level();
 
 		if (Input.IsActionPressed("rollLeft"))
 		{
-			aerodynamics.LeftAileron.Move(true);
-			aerodynamics.RightAileron.Move(false);
+			planeData.LeftAileron.Move(true);
+			planeData.RightAileron.Move(false);
 		}
 		else if (Input.IsActionPressed("rollRight"))
 		{
-			aerodynamics.LeftAileron.Move(false);
-			aerodynamics.RightAileron.Move(true);
+			planeData.LeftAileron.Move(false);
+			planeData.RightAileron.Move(true);
 		}
 		else
 		{
-			aerodynamics.LeftAileron.Level();
-			aerodynamics.RightAileron.Level();
+			planeData.LeftAileron.Level();
+			planeData.RightAileron.Level();
 		}
 
 		if (Input.IsActionJustPressed("slats"))
 		{
 			if (Input.IsActionPressed("left"))
-				aerodynamics.LeftSlat.Enabled = !aerodynamics.LeftSlat.Enabled;
+				planeData.LeftSlat.Enabled = !planeData.LeftSlat.Enabled;
 			if (Input.IsActionPressed("right"))
-				aerodynamics.RightSlat.Enabled = !aerodynamics.RightSlat.Enabled;
+				planeData.RightSlat.Enabled = !planeData.RightSlat.Enabled;
 			else
 			{
-				aerodynamics.LeftSlat.Enabled = !aerodynamics.LeftSlat.Enabled;
-				aerodynamics.RightSlat.Enabled = !aerodynamics.RightSlat.Enabled;
+				planeData.LeftSlat.Enabled = !planeData.LeftSlat.Enabled;
+				planeData.RightSlat.Enabled = !planeData.RightSlat.Enabled;
 			}
 		}
 
 		if (Input.IsActionJustPressed("flaps"))
 		{
 			if (Input.IsActionPressed("left"))
-				aerodynamics.LeftFlap.SwitchConfiguration();
+				planeData.LeftFlap.SwitchConfiguration();
 			if (Input.IsActionPressed("right"))
-				aerodynamics.RightFlap.SwitchConfiguration();
+				planeData.RightFlap.SwitchConfiguration();
 			else
 			{
-				aerodynamics.LeftFlap.SwitchConfiguration();
-				aerodynamics.RightFlap.SwitchConfiguration();
+				planeData.LeftFlap.SwitchConfiguration();
+				planeData.RightFlap.SwitchConfiguration();
 			}
 		}
 
 		if (Input.IsActionJustPressed("gear"))
-			aerodynamics.Gear.Enabled = !aerodynamics.Gear.Enabled;
+			planeData.Gear.Enabled = !planeData.Gear.Enabled;
 
 		if (Input.IsActionPressed("brakes") && gearTouchingGround())
-			state.LinearVelocity *= new Vector3(1, 1, brakesDec);
+		{
+			planeData.Brakes.Enabled = true;
+			state.LinearVelocity *= new Vector3(1, 1, planeData.Brakes.Decceleration);
+		}
+		else
+			planeData.Brakes.Enabled = false;
 
 		if (gearTouchingGround())
 		{
@@ -259,12 +274,12 @@ public class PlaneRigid : RigidBody
 			landingRotation.basis.y = groundNormal;
 			landingRotation.basis.x = -landingRotation.basis.z.Cross(groundNormal);
 			landingRotation.basis = landingRotation.basis.Orthonormalized();
-			state.Transform = state.Transform.InterpolateWith(landingRotation, 0.05f);
+			state.Transform = state.Transform.InterpolateWith(landingRotation, 0.1f);
 		}
 		
-		aerodynamics.Update(delta);
+		planeData.Update(delta);
 	}
 
-	bool gearTouchingGround() => aerodynamics.Gear.Enabled && gear.IsColliding();
+	bool gearTouchingGround() => planeData.Gear.Enabled && gear.IsColliding();
 }
 

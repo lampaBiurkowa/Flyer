@@ -25,8 +25,11 @@ public class Cockpit : Control
 	Label yawLabel;
 	BasicT basicT;
 	LeverPanel leverPanel;
+	Minimap minimap;
+	Radar radar;
 	List<EnginePanel> enginePanels = new List<EnginePanel>();
 	float previousYaw = 0;
+	Vector2 terrainSize;
 	public override void _Ready()
 	{
 		Initialize();
@@ -35,6 +38,7 @@ public class Cockpit : Control
 	public void Initialize()
 	{
 		loadComponents();
+		minimap.SetTerrainSize(terrainSize);
 	}
 
 	void loadComponents()
@@ -56,6 +60,8 @@ public class Cockpit : Control
 		yawLabel = (Label)GetNode("Yaw");
 		basicT = (BasicT)GetNode("BasicT");
 		leverPanel = (LeverPanel)GetNode("LeverPanel");
+		minimap = (Minimap)GetNode("NavigationPanel").GetNode("Minimap");
+		radar = (Radar)GetNode("NavigationPanel").GetNode("Radar");
 		enginePanels.Add((EnginePanel)GetNode("Engine1Panel"));
 		enginePanels.Add((EnginePanel)GetNode("Engine2Panel"));
 	}
@@ -209,5 +215,15 @@ public class Cockpit : Control
 	public void SetAH(float pitch, float roll)
 	{
 		basicT.SetAH(pitch, roll);
+	}
+
+	public void SetMinimap(float x, float z, float yaw)
+	{
+		minimap.Update(new Vector2(z, x), yaw);
+	}
+
+	public void SetTerrainSize(Vector2 size)
+	{
+		terrainSize = size;
 	}
 }

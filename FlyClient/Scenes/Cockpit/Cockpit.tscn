@@ -1,10 +1,11 @@
-[gd_scene load_steps=7 format=2]
+[gd_scene load_steps=8 format=2]
 
 [ext_resource path="res://Scripts/Planes/Cockpit.cs" type="Script" id=1]
 [ext_resource path="res://Scenes/Cockpit/LeverPanel.tscn" type="PackedScene" id=2]
 [ext_resource path="res://Resources/Fonts/font.tres" type="DynamicFontData" id=3]
 [ext_resource path="res://Scenes/Cockpit/BasicT.tscn" type="PackedScene" id=4]
 [ext_resource path="res://Scenes/Cockpit/EnginePanel.tscn" type="PackedScene" id=5]
+[ext_resource path="res://Scenes/Cockpit/NavigationPanel.tscn" type="PackedScene" id=6]
 
 [sub_resource type="DynamicFont" id=10]
 size = 24
@@ -329,12 +330,6 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="LeverPanel" parent="." instance=ExtResource( 2 )]
-margin_left = 545.0
-margin_top = 630.0
-margin_right = 765.0
-margin_bottom = 770.0
-
 [node name="BasicT" parent="." instance=ExtResource( 4 )]
 margin_left = 765.0
 margin_top = 390.0
@@ -342,13 +337,23 @@ margin_right = 1365.0
 margin_bottom = 770.0
 
 [node name="Engine1Panel" parent="." instance=ExtResource( 5 )]
-margin_left = 145.0
+margin_left = 200.0
 margin_top = 390.0
-margin_right = 345.0
+margin_right = 400.0
 margin_bottom = 770.0
 
 [node name="Engine2Panel" parent="." instance=ExtResource( 5 )]
-margin_left = 345.0
+margin_left = 400.0
 margin_top = 390.0
-margin_right = 545.0
+margin_right = 600.0
+margin_bottom = 770.0
+
+[node name="NavigationPanel" parent="." instance=ExtResource( 6 )]
+margin_top = 390.0
+margin_bottom = 770.0
+
+[node name="LeverPanel" parent="." instance=ExtResource( 2 )]
+margin_left = 600.0
+margin_top = 500.0
+margin_right = 750.0
 margin_bottom = 770.0

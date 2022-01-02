@@ -2,6 +2,7 @@ using GeoLib;
 using System;
 using Shared;
 using Shared.Objects;
+using Shared.Plane;
 using ClientCore.Physics.PlaneParts;
 
 namespace ClientCore.Physics
@@ -10,15 +11,15 @@ namespace ClientCore.Physics
     {
         public Vector3 Direction {get; private set;}
         public FlightData FlightData {get; private set;}
+        public MachineData MachineData {get; private set;}
         public PlaneData PlaneData {get; private set;}
-        public AerodynamicsData AerodynamicsData {get; private set;}
         public Vector3 LocalRotation {get; private set;}
 
-        public PlanePhysics(FlightData flightData, PlaneData planeData, AerodynamicsData aerodynamicsData)
+        public PlanePhysics(FlightData flightData, MachineData machineData, PlaneData planeData)
         {
             FlightData = flightData;
+            MachineData = machineData;
             PlaneData = planeData;
-            AerodynamicsData = aerodynamicsData;
         }
 
         public Vector3 GetSpeed() => FlightData.Speed;
@@ -40,7 +41,7 @@ namespace ClientCore.Physics
 
         public float GetPartDrag(IAerodynamic part, WindPhysics wind)
         {
-            const float DRAG_COEFFICENT = 0.001f;
+            const float DRAG_COEFFICENT = 0.05f;
             float density = wind.GetDensity(FlightData.Altitude);
             float speed = GetAirspeed(); //-wind spid
             float surface = part.GetDragSurface();
@@ -63,7 +64,7 @@ namespace ClientCore.Physics
 
         public float GetPartSide(IAerodynamic part, WindPhysics wind)
         {
-            const float SIDE_COEFFICENT = 1;
+            const float SIDE_COEFFICENT = 1.5f;
             float density = wind.GetDensity(FlightData.Altitude);
             float speed = 1;//crosswind spid
             float surface = part.GetSideSurface();
@@ -73,42 +74,42 @@ namespace ClientCore.Physics
 
         public float GetLeftLift(WindPhysics wind)
         {
-            float leftLift = GetPartLift(AerodynamicsData.LeftFlap, wind);
-            leftLift += GetPartLift(AerodynamicsData.LeftAileron, wind);
-            leftLift += GetPartLift(AerodynamicsData.LeftSlat, wind);
-            leftLift += GetPartLift(AerodynamicsData.LeftWing, wind);
+            float leftLift = GetPartLift(PlaneData.LeftFlap, wind);
+            leftLift += GetPartLift(PlaneData.LeftAileron, wind);
+            leftLift += GetPartLift(PlaneData.LeftSlat, wind);
+            leftLift += GetPartLift(PlaneData.LeftWing, wind);
             return leftLift;
         }
 
         public float GetRightLift(WindPhysics wind)
         {
-            float rightLift = GetPartLift(AerodynamicsData.RightFlap, wind);
-            rightLift += GetPartLift(AerodynamicsData.RightAileron, wind);
-            rightLift += GetPartLift(AerodynamicsData.RightSlat, wind);
-            rightLift += GetPartLift(AerodynamicsData.RightWing, wind);
+            float rightLift = GetPartLift(PlaneData.RightFlap, wind);
+            rightLift += GetPartLift(PlaneData.RightAileron, wind);
+            rightLift += GetPartLift(PlaneData.RightSlat, wind);
+            rightLift += GetPartLift(PlaneData.RightWing, wind);
             return rightLift;
         }
 
-        public float GetLeftDrag(WindPhysics wind)
+        public float GetLeftDrag(WindPhysics wind, float roll)
         {
-            float leftDrag = GetPartDrag(AerodynamicsData.LeftFlap, wind);
-            leftDrag += GetPartDrag(AerodynamicsData.LeftAileron, wind);
-            leftDrag += GetPartDrag(AerodynamicsData.LeftSlat, wind);
-            leftDrag += GetPartDrag(AerodynamicsData.LeftWing, wind);
-            return leftDrag;
+            float leftDrag = GetPartDrag(PlaneData.LeftFlap, wind);
+            leftDrag += GetPartDrag(PlaneData.LeftAileron, wind);
+            leftDrag += GetPartDrag(PlaneData.LeftSlat, wind);
+            leftDrag += GetPartDrag(PlaneData.LeftWing, wind);
+            return leftDrag * (float)Math.Sin(roll) * 0.5f;
         }
 
-        public float GetRightDrag(WindPhysics wind)
+        public float GetRightDrag(WindPhysics wind, float roll)
         {
-            float rightDrag = GetPartDrag(AerodynamicsData.RightFlap, wind);
-            rightDrag += GetPartDrag(AerodynamicsData.RightAileron, wind);
-            rightDrag += GetPartDrag(AerodynamicsData.RightSlat, wind);
-            rightDrag += GetPartDrag(AerodynamicsData.RightWing, wind);
-            return rightDrag;
+            float rightDrag = GetPartDrag(PlaneData.RightFlap, wind);
+            rightDrag += GetPartDrag(PlaneData.RightAileron, wind);
+            rightDrag += GetPartDrag(PlaneData.RightSlat, wind);
+            rightDrag += GetPartDrag(PlaneData.RightWing, wind);
+            return rightDrag * (float)Math.Sin(-roll) * 0.5f;
         }
 
-        public float GetTailDrag(WindPhysics wind) => GetPartDrag(AerodynamicsData.Gear, wind);
+        public float GetTailDrag(WindPhysics wind) => GetPartDrag(PlaneData.Gear, wind);
 
-        public float GetTotalSide(WindPhysics wind) => GetPartSide(AerodynamicsData.Rudder, wind);
+        public float GetTotalSide(WindPhysics wind) => GetPartSide(PlaneData.Rudder, wind);
     }
 }
