@@ -226,6 +226,10 @@ public class Cockpit : Control
 		minimap.Update(new Vector2(z, x), yaw);
 	}
 
+	public void SwitchHeightmap()
+	{
+		minimap.HeightmapEnabled = !minimap.HeightmapEnabled;
+	}
 	public void SetTerrainSize(Vector2 size)
 	{
 		terrainSize = size;

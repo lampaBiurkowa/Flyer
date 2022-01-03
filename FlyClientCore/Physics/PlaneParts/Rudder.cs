@@ -65,7 +65,7 @@ namespace ClientCore.Physics.PlaneParts
             
             if (AngleDegrees > MAX_ANGLE)
                 AngleDegrees = MAX_ANGLE;
-            if (AngleDegrees < -MAX_ANGLE)
+            else if (AngleDegrees < -MAX_ANGLE)
                 AngleDegrees = -MAX_ANGLE;
         }
     }

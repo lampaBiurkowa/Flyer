@@ -2,9 +2,23 @@ using Godot;
 
 public class Minimap : Sprite
 {
-	const float SIZE = 232;
+	const float SIZE = 256;
 	Sprite indicator;
+	Sprite heightmapLayer;
+
 	Vector2 terrainSize = new Vector2(1, 1);
+	private bool heightmapEnabled;
+	public bool HeightmapEnabled
+	{
+		get => heightmapEnabled;
+		set
+		{
+			heightmapEnabled = value;
+			heightmapLayer.Visible = value;
+		}
+	}
+	
+	
 	public override void _Ready()
 	{
 		loadComponents();
@@ -18,6 +32,7 @@ public class Minimap : Sprite
 	void loadComponents()
 	{
 		indicator = (Sprite)GetNode("Indicator");
+		heightmapLayer = (Sprite)GetNode("HeightmapLayer");
 	}
 
 	public void Update(Vector2 position, float yaw)
@@ -27,29 +42,4 @@ public class Minimap : Sprite
 		indicator.Position = new Vector2(x, y);
 		indicator.RotationDegrees = -yaw;
 	}
-
-
-	/*MinimapData minimapData = new MinimapData(1);
-	const float SIZE = 200;
-	
-	public override void _Ready()
-	{
-		loadMinimapTexture();
-		setScale();
-	}
-
-	void loadMinimapTexture()
-	{
-		ImageTexture texture = new ImageTexture();
-		Image image = new Image();	
-		image.Load(minimapData.GetCapturePath());
-		texture.CreateFromImage(image);
-		Texture = texture;
-	}
-
-	void setScale()
-	{
-		float scale = SIZE / MinimapData.CAPTURE_CUT_SIZE;
-		Scale = new Vector2(scale, scale);
-	}*/
 }

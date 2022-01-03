@@ -15,7 +15,7 @@ namespace ClientCore.Physics
 
         const float DRAG_COEFFICENT = 0.025f;
         const float LIFT_COEFFICENT = 0.025f;
-        const float SIDE_COEFFICENT = 15f;
+        const float SIDE_COEFFICENT = 1.5f;
         const float SPEED_COEFFICENT = 2f;
 
         public PlanePhysics(FlightData flightData, MachineData machineData, PlaneData planeData)
@@ -122,7 +122,7 @@ namespace ClientCore.Physics
             side *= (1 - MathF.Pow(MathF.Cos((float)LocalRotation.X), 2)); //roll
             if (LocalRotation.X > 0)
                 side *= -1;
-            return side * 10f;
+            return side;
         }
     }
 }
