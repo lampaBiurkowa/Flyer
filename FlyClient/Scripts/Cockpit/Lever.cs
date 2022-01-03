@@ -4,6 +4,7 @@ using System;
 public class Lever : Sprite
 {
 	int height;
+	float headMarign;
 	int levelCount;
 	Sprite leverHead;
 
@@ -46,11 +47,12 @@ public class Lever : Sprite
 		Image image = new Image();	
 		image.Load($"Resources/Planes/Cockpit/{leverName}Lever.png");
 		texture.CreateFromImage(image);
+		headMarign = texture.GetHeight() / 2;
 		leverHead.Texture = texture;
 	}
 
 	void updateLeverHead()
 	{
-		leverHead.Position = new Vector2(0, (height / (float)(levelCount - 1)) * Placement);
+		leverHead.Position = new Vector2(0, ((height - headMarign) / (float)(levelCount - 1)) * Placement);
 	}
 }

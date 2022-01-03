@@ -5,6 +5,7 @@ using ClientCore;
 using ClientCore.Cockpit;
 using ClientCore.Physics;
 using ClientCore.Physics.PlaneParts;
+using ClientCore.Sky;
 using Shared.Objects;
 using Shared.Plane;
 
@@ -19,10 +20,8 @@ public class PlaneRigid : RigidBody
 	RayCast gear;
 	RayCast gpDown;
 	RayCast gpForward;
-	Camera viewportCamera;
 	Camera planeCamera;
 	MinimapData minimapData = new MinimapData(1);
-	Viewport viewport;
 
 	public override void _Ready()
 	{
@@ -35,7 +34,7 @@ public class PlaneRigid : RigidBody
 		GenericSurfaceData aileronSurface = new GenericSurfaceData(0, 3, 0);
 		GenericSurfaceData elevatorSurface = new GenericSurfaceData(0, 1, 0);
 		GenericSurfaceData flapSurface = new GenericSurfaceData(0, 1, 0);
-		GenericSurfaceData rudderSurface = new GenericSurfaceData(0, 0, 10);
+		GenericSurfaceData rudderSurface = new GenericSurfaceData(0, 0, 5);
 		GenericSurfaceData wingSurface = new GenericSurfaceData(1, 60, 0);
 		GenericSurfaceData slatSurface = new GenericSurfaceData(1, 1, 0);
 		GenericSurfaceData gearSurface = new GenericSurfaceData(2, 0, 0);
@@ -50,6 +49,10 @@ public class PlaneRigid : RigidBody
 		//
 		Spatial terrain = (Spatial)GetNode("../");
 		cockpit.SetTerrainSize(new Vector2(-terrain.Translation.z, -terrain.Translation.x));
+
+		addFog(new Vector3(180, 10, 1800), FogDensity.THICK);
+		addFog(new Vector3(150, 50, 1600));
+		addFog(new Vector3(250, 200, 1200), FogDensity.THIN);
 	}
 
 	void loadComponents()
@@ -60,11 +63,19 @@ public class PlaneRigid : RigidBody
 		gpForward = (RayCast)GetNode("GPForward");
 		cockpit = (Cockpit)GetNodeOrNull("../../../Cockpit");//ez
 		planeCamera = (Camera)GetNode("Camera");
-		viewportCamera = (Camera)GetNodeOrNull("../MinimapCamera");
-		viewport = (Viewport)GetNodeOrNull("../../");
 		planeCamera.Current = true;
 	}
 	
+	void addFog(Vector3 position, FogDensity density = FogDensity.STANDARD)
+	{
+		PackedScene scene = (PackedScene)ResourceLoader.Load($"Scenes/Sky/Fog.tscn");
+		Fog fog = (Fog)scene.Instance();
+		fog.Initialize();
+		fog.SetDensity(density);
+		fog.Translation = position;
+		GetNode("../").GetNode("Sky").AddChild(fog);
+	}
+
 	public override void _IntegrateForces(PhysicsDirectBodyState state)
 	{
 		float delta = state.Step;
@@ -74,8 +85,8 @@ public class PlaneRigid : RigidBody
 		GeoLib.Vector3 rotation = new GeoLib.Vector3(RotationDegrees.x, RotationDegrees.y, RotationDegrees.z);
 		GeoLib.Vector3 translation = new GeoLib.Vector3(Translation.x, Translation.y, Translation.z);
 		float localRotationScale = (float)GeoLib.GameMath.DegToRad(90);
-		float roll = -GlobalTransform.basis.y.x * localRotationScale;
-		float pitch = GlobalTransform.basis.y.z * localRotationScale;
+		float roll = Rotation.z + (float)GeoLib.GameMath.DegToRad(180); //-GlobalTransform.basis.y.x * localRotationScale;
+		float pitch = Rotation.x;// GlobalTransform.basis.y.z * localRotationScale;
 		float yaw = Rotation.y;//GlobalTransform.basis.z.x * localRotationScale;
 		GeoLib.Vector3 localRotation = new GeoLib.Vector3(roll, pitch, yaw);
 
@@ -115,14 +126,18 @@ public class PlaneRigid : RigidBody
 		float realZSpeed = state.LinearVelocity.z + (float)(-fallForwardSpeed * Math.Cos(localRotation.Z));
 		state.LinearVelocity = new Vector3(realXSpeed, realYSpeed, realZSpeed);
 		
-		state.ApplyImpulse(left, new Vector3(0, 0, planePhysics.GetLeftDrag(windPhysics, roll) * delta));
-		state.ApplyImpulse(right, new Vector3(0, 0, planePhysics.GetRightDrag(windPhysics, roll) * delta));
-		state.ApplyImpulse(tail, new Vector3(0, 0, planePhysics.GetTailDrag(windPhysics) * delta));
+		state.ApplyImpulse(left, GlobalTransform.basis.z * new Vector3(1, 1, planePhysics.GetLeftDrag(windPhysics) * delta));
+		state.ApplyImpulse(right, GlobalTransform.basis.z * new Vector3(1, 1, planePhysics.GetRightDrag(windPhysics) * delta));
+		state.ApplyImpulse(tail, GlobalTransform.basis.z * new Vector3(1, 1, planePhysics.GetTailDrag(windPhysics) * delta));
 
-		state.ApplyImpulse(tail, new Vector3(planePhysics.GetTotalSide(windPhysics) * delta, 0 ,0));
+		state.ApplyImpulse(tail, GlobalTransform.basis.x * new Vector3(planePhysics.GetTailSide(windPhysics) * delta, 1, 1));
+		state.ApplyImpulse(Vector3.Zero, GlobalTransform.basis.x * new Vector3(planePhysics.GetCentralSide(windPhysics) * delta * scale * 0.98f, 1, 1));
+		state.ApplyImpulse(tail, GlobalTransform.basis.x * new Vector3(planePhysics.GetCentralSide(windPhysics) * delta * scale * 0.02f, 1, 1));
+		//GD.Print(planePhysics.GetCentralSide(windPhysics) * delta * scale);
+		//GD.Print($"{tail} {GlobalTransform.basis.x}");
 
 		float elevatorLift = planePhysics.GetPartLift(planeData.Elevator, windPhysics) * delta;// * scale;
-		state.ApplyImpulse(tail, new Vector3(0, elevatorLift, 0));
+		state.ApplyImpulse(tail, GlobalTransform.basis.y * new Vector3(1, elevatorLift, 1));
 		
 		cockpit.SetSpeed(planePhysics);//.GetAirspeed()
 		cockpit.SetLift(totalLift, leftLift, rightLift);
@@ -154,7 +169,7 @@ public class PlaneRigid : RigidBody
 		float rSide = planePhysics.GetPartSide(planeData.Rudder, windPhysics);
 		cockpit.SetRudder(rLift, rDrag, rSide);
 
-		float eLift = planePhysics.GetPartLift(planeData.Elevator, windPhysics) * scale;
+		float eLift = planePhysics.GetPartLift(planeData.Elevator, windPhysics);
 		float eDrag = planePhysics.GetPartDrag(planeData.Elevator, windPhysics);
 		float eSide = planePhysics.GetPartSide(planeData.Elevator, windPhysics);
 		cockpit.SetElevator(eLift, eDrag, eSide);
@@ -170,6 +185,7 @@ public class PlaneRigid : RigidBody
 
 		cockpit.SetAH((float)GeoLib.GameMath.RadToDeg(pitch), (float)GeoLib.GameMath.RadToDeg(roll));
 		cockpit.SetMinimap(Translation.x, Translation.z, (float)GeoLib.GameMath.RadToDeg(yaw));
+		cockpit.SetTurnCoordinator((float)GeoLib.GameMath.RadToDeg(yaw), (float)GeoLib.GameMath.RadToDeg(roll));
 
 		if (Input.IsActionPressed("thrustUp"))
 		{
@@ -201,16 +217,16 @@ public class PlaneRigid : RigidBody
 		}
 
 		if (Input.IsActionPressed("pitchUp"))
-			planeData.Elevator.Move(true);
-		else if (Input.IsActionPressed("pitchDown"))
 			planeData.Elevator.Move(false);
+		else if (Input.IsActionPressed("pitchDown"))
+			planeData.Elevator.Move(true);
 		else
 			planeData.Elevator.Level();
 
 		if (Input.IsActionPressed("rudderLeft"))
-			planeData.Rudder.Move(true);
-		else if (Input.IsActionPressed("rudderRight"))
 			planeData.Rudder.Move(false);
+		else if (Input.IsActionPressed("rudderRight"))
+			planeData.Rudder.Move(true);
 		else
 			planeData.Rudder.Level();
 

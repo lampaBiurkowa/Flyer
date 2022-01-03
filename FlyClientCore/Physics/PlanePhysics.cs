@@ -1,7 +1,5 @@
 using GeoLib;
 using System;
-using Shared;
-using Shared.Objects;
 using Shared.Plane;
 using ClientCore.Physics.PlaneParts;
 
@@ -15,6 +13,11 @@ namespace ClientCore.Physics
         public PlaneData PlaneData {get; private set;}
         public Vector3 LocalRotation {get; private set;}
 
+        const float DRAG_COEFFICENT = 0.025f;
+        const float LIFT_COEFFICENT = 0.025f;
+        const float SIDE_COEFFICENT = 15f;
+        const float SPEED_COEFFICENT = 2f;
+
         public PlanePhysics(FlightData flightData, MachineData machineData, PlaneData planeData)
         {
             FlightData = flightData;
@@ -23,7 +26,7 @@ namespace ClientCore.Physics
         }
 
         public Vector3 GetSpeed() => FlightData.Speed;
-        public float GetAirspeed() => (float)Math.Sqrt(Math.Pow(FlightData.Speed.X, 2) + Math.Pow(FlightData.Speed.Z, 2));
+        public float GetAirspeed() => SPEED_COEFFICENT * MathF.Sqrt(MathF.Pow((float)FlightData.Speed.X, 2) + MathF.Pow((float)FlightData.Speed.Z, 2));
         public float GetDiveForwardSpeed()
         {
             float val = (float)FlightData.Speed.Y * MathF.Sin((float)LocalRotation.Y);
@@ -41,7 +44,6 @@ namespace ClientCore.Physics
 
         public float GetPartDrag(IAerodynamic part, WindPhysics wind)
         {
-            const float DRAG_COEFFICENT = 0.05f;
             float density = wind.GetDensity(FlightData.Altitude);
             float speed = GetAirspeed(); //-wind spid
             float surface = part.GetDragSurface();
@@ -51,7 +53,6 @@ namespace ClientCore.Physics
 
         public float GetPartLift(IAerodynamic part, WindPhysics wind)
         {
-            const float LIFT_COEFFICENT = 0.1f;
             float density = wind.GetDensity(FlightData.Altitude);
             float speed = GetAirspeed();//-wind spid
             float surface = part.GetLiftSurface();
@@ -64,7 +65,6 @@ namespace ClientCore.Physics
 
         public float GetPartSide(IAerodynamic part, WindPhysics wind)
         {
-            const float SIDE_COEFFICENT = 1.5f;
             float density = wind.GetDensity(FlightData.Altitude);
             float speed = 1;//crosswind spid
             float surface = part.GetSideSurface();
@@ -90,26 +90,39 @@ namespace ClientCore.Physics
             return rightLift;
         }
 
-        public float GetLeftDrag(WindPhysics wind, float roll)
+        public float GetLeftDrag(WindPhysics wind)
         {
             float leftDrag = GetPartDrag(PlaneData.LeftFlap, wind);
             leftDrag += GetPartDrag(PlaneData.LeftAileron, wind);
             leftDrag += GetPartDrag(PlaneData.LeftSlat, wind);
             leftDrag += GetPartDrag(PlaneData.LeftWing, wind);
-            return leftDrag * (float)Math.Sin(roll) * 0.5f;
+            return leftDrag;
         }
 
-        public float GetRightDrag(WindPhysics wind, float roll)
+        public float GetRightDrag(WindPhysics wind)
         {
             float rightDrag = GetPartDrag(PlaneData.RightFlap, wind);
             rightDrag += GetPartDrag(PlaneData.RightAileron, wind);
             rightDrag += GetPartDrag(PlaneData.RightSlat, wind);
             rightDrag += GetPartDrag(PlaneData.RightWing, wind);
-            return rightDrag * (float)Math.Sin(-roll) * 0.5f;
+            return rightDrag;
         }
 
         public float GetTailDrag(WindPhysics wind) => GetPartDrag(PlaneData.Gear, wind);
 
-        public float GetTotalSide(WindPhysics wind) => GetPartSide(PlaneData.Rudder, wind);
+        public float GetTailSide(WindPhysics wind) => GetPartSide(PlaneData.Rudder, wind);
+
+        public float GetCentralSide(WindPhysics wind)
+        {
+            float density = wind.GetDensity(FlightData.Altitude);
+            float speed = GetAirspeed();//-wind spid
+
+            float side = (float)(LIFT_COEFFICENT * ((density * Math.Pow(speed, 2)) / 2) * PlaneData.LeftWing.GetLiftSurface());
+            side += (float)(LIFT_COEFFICENT * ((density * Math.Pow(speed, 2)) / 2) * PlaneData.RightWing.GetLiftSurface());
+            side *= (1 - MathF.Pow(MathF.Cos((float)LocalRotation.X), 2)); //roll
+            if (LocalRotation.X > 0)
+                side *= -1;
+            return side * 10f;
+        }
     }
 }

@@ -199,8 +199,12 @@ public class Cockpit : Control
 		yawLabel.Text = text;
 
 		basicT.SetHeading(angleDeg);
-		basicT.SetTurnCoordinator(angleDeg - previousYaw);
-		previousYaw = angleDeg;
+	}
+
+	public void SetTurnCoordinator(float yaw, float roll)
+	{
+		basicT.SetTurnCoordinator(yaw, yaw - previousYaw, roll);
+		previousYaw = yaw;
 	}
 
 	public void SetRoll(float angleDeg)

@@ -11,6 +11,7 @@ public class BasicT : Panel
 	Sprite heading;
 	Sprite ahControl;
 	Sprite turnCoordinatorArrow;
+	Sprite turnCoordinatorBubble;
 	Sprite airspeedArrow;
 	Label altimeterAltitude;
 
@@ -38,6 +39,7 @@ public class BasicT : Panel
 		heading = (Sprite)GetNode("HeadingArrow/Heading");
 		ahControl = (Sprite)GetNode("AH/AHControl");
 		turnCoordinatorArrow = (Sprite)GetNode("TurnCoordinator/TurnCoordinatorArrow");
+		turnCoordinatorBubble = (Sprite)GetNode("TurnCoordinator/TurnCoordinatorBubble");
 		airspeedArrow = (Sprite)GetNode("Airspeed/AirspeedArrow");
 	}
 
@@ -77,8 +79,10 @@ public class BasicT : Panel
 		verticalSpeedArrow.RotationDegrees = verticalSpeedData.GetAngleForSpeed(verticalSpeed);
 	}
 
-	public void SetTurnCoordinator(float yawRate)
+	public void SetTurnCoordinator(float yaw, float yawRate, float roll)
 	{
 		turnCoordinatorArrow.RotationDegrees = turnCoordinatorData.GetAngleForYawRate(yawRate);
+		GeoLib.Vector2 bubblePosition = turnCoordinatorData.GetBubblePosition(yaw, roll);
+		turnCoordinatorBubble.Position = new Vector2((float)bubblePosition.X, (float)bubblePosition.Y);
 	}
 }

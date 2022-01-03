@@ -6,7 +6,7 @@ namespace ClientCore.Physics.PlaneParts
 {
     public class Rudder : Part, IAerodynamic
     {
-        const float MAX_ANGLE = 60;
+        const float MAX_ANGLE = 30;
         GenericSurfaceData data;
 
         private float angleDegrees = 0;
@@ -50,16 +50,14 @@ namespace ClientCore.Physics.PlaneParts
         public void Level()
         {
             accelerationDegrees = 0;
+            AngleDegrees = 0;
         }
 
         public float GetLiftSurface() => 0;
 
         public float GetDragSurface() => 0;
 
-        public float GetSideSurface()
-        {
-            return data.SideSurface * (float)(Math.Sin(AngleDegrees));
-        }
+        public float GetSideSurface() => data.SideSurface * (float)(Math.Sin(AngleDegrees));
 
         public void Update(float delta)
         {
