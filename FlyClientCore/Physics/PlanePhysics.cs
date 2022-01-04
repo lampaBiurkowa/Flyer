@@ -120,7 +120,7 @@ namespace ClientCore.Physics
             float side = (float)(LIFT_COEFFICENT * ((density * Math.Pow(speed, 2)) / 2) * PlaneData.LeftWing.GetLiftSurface());
             side += (float)(LIFT_COEFFICENT * ((density * Math.Pow(speed, 2)) / 2) * PlaneData.RightWing.GetLiftSurface());
             side *= (1 - MathF.Pow(MathF.Cos((float)LocalRotation.X), 2)); //roll
-            if (LocalRotation.X > 0)
+            if (Math.Sin(LocalRotation.X) < 0)
                 side *= -1;
             return side;
         }

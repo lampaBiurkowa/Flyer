@@ -47,7 +47,7 @@ public class Lever : Sprite
 		Image image = new Image();	
 		image.Load($"Resources/Planes/Cockpit/{leverName}Lever.png");
 		texture.CreateFromImage(image);
-		headMarign = texture.GetHeight() / 2;
+		headMarign = texture.GetHeight();
 		leverHead.Texture = texture;
 	}
 

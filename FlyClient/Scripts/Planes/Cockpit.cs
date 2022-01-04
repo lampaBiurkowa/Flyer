@@ -74,7 +74,7 @@ public class Cockpit : Control
 		for (int i = 0; i < thrust.Count; i++)
 		{
 			float thrustPercentage = (thrust[i].Item1 / maxThrust) * 100;
-			enginePanels[i].SetFuel(thrust[i].Item3 / 10);
+			enginePanels[i].SetFuel(thrust[i].Item3);
 			enginePanels[i].SetThrustPercentage(thrustPercentage);
 			text += $"{i+1}:{thrust[i].Item1} ({thrust[i].Item2} {thrustPercentage} {thrustPercentage % 10})";
 		}

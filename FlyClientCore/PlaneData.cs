@@ -56,6 +56,8 @@ namespace ClientCore
             Rudder.Update(delta);
             LeftAileron.Update(delta);
             RightAileron.Update(delta);
+            foreach (var e in Engines)
+                e.UpdateFuel(delta);
         }
     }
 }

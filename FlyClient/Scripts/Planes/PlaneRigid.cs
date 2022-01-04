@@ -39,12 +39,12 @@ public class PlaneRigid : RigidBody
 		GenericSurfaceData slatSurface = new GenericSurfaceData(1, 1, 0);
 		GenericSurfaceData gearSurface = new GenericSurfaceData(2, 0, 0);
 		int length = 40;
-		//max,fuel ,restart,surface,acc,dec
-		EngineData engine = new EngineData(30, 1, 8000, 1,5f, 2.5f);
+		//max,fuelc, fuelpersec ,restart,surface,acc,dec
+		EngineData engine = new EngineData(30, 15, 0.01f, 8000, 1,5f, 2.5f);
 		List<Tuple<EngineData, Localization>> engines = new List<Tuple<EngineData, Localization>>();
 		engines.Add(new Tuple<EngineData, Localization>(engine, Localization.LEFT));
 		engines.Add(new Tuple<EngineData, Localization>(engine, Localization.RIGHT));
-		machineData = new MachineData(aileronSurface, elevatorSurface, flapSurface, gearSurface, rudderSurface, slatSurface, wingSurface, engines, length);
+		machineData = new MachineData(aileronSurface, elevatorSurface, flapSurface, gearSurface, rudderSurface, slatSurface, wingSurface, engines, length, 300);
 		planeData = new PlaneData(machineData);
 		//
 		Spatial terrain = (Spatial)GetNode("../");
@@ -79,9 +79,14 @@ public class PlaneRigid : RigidBody
 	public override void _IntegrateForces(PhysicsDirectBodyState state)
 	{
 		if (state.AngularVelocity.Length() > 1)
-		{
 			state.AngularVelocity *= new Vector3(0.999f, 0.999f, 0.99f);
-		}
+		
+		Mass = machineData.Mass;
+		foreach (var e in planeData.Engines)
+			Mass += e.RemainingFuel * ClientCore.Physics.PlaneParts.Engine.FUEL_MASS;
+		GD.Print(state.TotalGravity.y);
+		//Weight = state.TotalGravity.y * Mass;
+
 		if (Input.IsActionJustPressed("emergency"))
 		{
 			state.LinearVelocity = new Vector3(0, 0, -50);
@@ -91,7 +96,11 @@ public class PlaneRigid : RigidBody
 		}
 
 		float delta = state.Step;
-		float weight = state.TotalGravity.y * Mass;
+		float weight = -Weight;//state.TotalGravity.y * Mass;
+		GD.Print(Mass);
+		GD.Print(Weight);
+		GD.Print(weight);
+		GD.Print(state.TotalGravity.y);
 		
 		GeoLib.Vector3 velocity = new GeoLib.Vector3(state.LinearVelocity.x, state.LinearVelocity.y, state.LinearVelocity.z);
 		GeoLib.Vector3 rotation = new GeoLib.Vector3(RotationDegrees.x, RotationDegrees.y, RotationDegrees.z + 180);
@@ -129,7 +138,7 @@ public class PlaneRigid : RigidBody
 
 		List<Tuple<float, float, float>> thrusts = new List<Tuple<float, float, float>>();
 		foreach (var e in planeData.Engines)
-			thrusts.Add(new Tuple<float, float, float>(e.CurrentSpeed, e.GetThrust(delta, windPhysics.GetDensity(flightData.Altitude)), 55));
+			thrusts.Add(new Tuple<float, float, float>(e.CurrentSpeed, e.GetThrust(delta, windPhysics.GetDensity(flightData.Altitude)), e.RemainingFuel));
 		cockpit.SetEngines(thrusts, 30);
 		state.ApplyImpulse(left, GlobalTransform.basis.z * thrusts[0].Item2 * delta * -1);
 		state.ApplyImpulse(right, GlobalTransform.basis.z * thrusts[1].Item2 * delta * -1);
@@ -213,30 +222,30 @@ public class PlaneRigid : RigidBody
 		if (Input.IsActionPressed("thrustUp"))
 		{
 			if (Input.IsActionPressed("1") && planeData.Engines.Count >= 1)
-				planeData.Engines[0].Update(true, delta);
+				planeData.Engines[0].UpdateThrust(true, delta);
 			else if (Input.IsActionPressed("2") && planeData.Engines.Count >= 2)
-				planeData.Engines[1].Update(true, delta);
+				planeData.Engines[1].UpdateThrust(true, delta);
 			else if (Input.IsActionPressed("3") && planeData.Engines.Count >= 3)
-				planeData.Engines[2].Update(true, delta);
+				planeData.Engines[2].UpdateThrust(true, delta);
 			else if (Input.IsActionPressed("4") && planeData.Engines.Count >= 4)
-				planeData.Engines[3].Update(true, delta);
+				planeData.Engines[3].UpdateThrust(true, delta);
 			else
 				foreach (var e in planeData.Engines)
-					e.Update(true, delta);
+					e.UpdateThrust(true, delta);
 		}
 		else if (Input.IsActionPressed("thrustDown"))
 		{
 			if (Input.IsActionPressed("1") && planeData.Engines.Count >= 1)
-				planeData.Engines[0].Update(false, delta);
+				planeData.Engines[0].UpdateThrust(false, delta);
 			else if (Input.IsActionPressed("2") && planeData.Engines.Count >= 2)
-				planeData.Engines[1].Update(false, delta);
+				planeData.Engines[1].UpdateThrust(false, delta);
 			else if (Input.IsActionPressed("3") && planeData.Engines.Count >= 3)
-				planeData.Engines[2].Update(false, delta);
+				planeData.Engines[2].UpdateThrust(false, delta);
 			else if (Input.IsActionPressed("4") && planeData.Engines.Count >= 4)
-				planeData.Engines[3].Update(false, delta);
+				planeData.Engines[3].UpdateThrust(false, delta);
 			else
 				foreach (var e in planeData.Engines)
-					e.Update(false, delta);
+					e.UpdateThrust(false, delta);
 		}
 
 		if (Input.IsActionPressed("pitchUp"))
