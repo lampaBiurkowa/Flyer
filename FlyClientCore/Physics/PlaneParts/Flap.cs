@@ -35,7 +35,7 @@ namespace ClientCore.Physics.PlaneParts
 
         public int CurrentConfiguration {get; private set;} = 0;
 
-        public Flap(Vector2 offset, GenericSurfaceData data) : base(offset)
+        public Flap(Vector2F offset, GenericSurfaceData data) : base(offset)
         {
             this.data = data;
         }
@@ -46,9 +46,9 @@ namespace ClientCore.Physics.PlaneParts
             AngleDegrees = (MAX_ANGLE / (CONFIGURATION_COUNT - 1)) * CurrentConfiguration;
         }
 
-        public float GetLiftSurface() => data.LiftSurface * (float)Math.Sin(angleRadians); //kretynizm
+        public float GetLiftSurface() => data.LiftSurface * MathF.Sin(angleRadians); //kretynizm
 
-        public float GetDragSurface() => data.LiftSurface * (float)Math.Sin(angleRadians);
+        public float GetDragSurface() => data.LiftSurface * MathF.Sin(angleRadians);
 
         public float GetSideSurface() => 0;
     }

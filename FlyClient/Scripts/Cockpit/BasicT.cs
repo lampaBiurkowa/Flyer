@@ -82,7 +82,7 @@ public class BasicT : Panel
 	public void SetTurnCoordinator(float yaw, float yawRate, float roll)
 	{
 		turnCoordinatorArrow.RotationDegrees = turnCoordinatorData.GetAngleForYawRate(yawRate);
-		GeoLib.Vector2 bubblePosition = turnCoordinatorData.GetBubblePosition(yaw, roll);
-		turnCoordinatorBubble.Position = new Vector2((float)bubblePosition.X, (float)bubblePosition.Y);
+		GeoLib.Vector2F bubblePosition = turnCoordinatorData.GetBubblePosition(yaw, roll);
+		turnCoordinatorBubble.Position = new Vector2(bubblePosition.X, bubblePosition.Y);
 	}
 }

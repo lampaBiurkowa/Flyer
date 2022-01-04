@@ -34,7 +34,7 @@ namespace ClientCore.Physics.PlaneParts
         public const float STEP = 100f;
         public float accelerationDegrees = 0;
 
-        public Elevator(Vector2 offset, GenericSurfaceData data) : base(offset)
+        public Elevator(Vector2F offset, GenericSurfaceData data) : base(offset)
         {
             this.data = data;
         }
@@ -63,9 +63,9 @@ namespace ClientCore.Physics.PlaneParts
                 AngleDegrees = -MAX_ANGLE;
         }
 
-        public float GetLiftSurface() => data.LiftSurface * (float)(Math.Sin(angleRadians));
+        public float GetLiftSurface() => data.LiftSurface * MathF.Sin(angleRadians);
 
-        public float GetDragSurface() => 0;//data.LiftSurface * (float)(Math.Sin(angleRadians));
+        public float GetDragSurface() => 0;
 
         public float GetSideSurface() => 0;
     }

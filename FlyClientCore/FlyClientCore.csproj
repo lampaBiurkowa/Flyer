@@ -5,10 +5,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="GeoLib">
-      <HintPath>/home/julian/ngruza1/C#/GeoLib/GeoLib/GeoLib/bin/Debug/netcoreapp2.2/GeoLib.dll</HintPath>
+      <HintPath>/home/julian/ngruza1/C#/GeoLib/GeoLib/GeoLib/bin/Debug/netstandard2.1/GeoLib.dll</HintPath>
     </Reference>
     <Reference Include="FlyShared">
-      <HintPath>../FlyShared/bin/Debug/netstandard2.0/FlyShared.dll</HintPath>
+      <HintPath>../FlyShared/bin/Debug/netstandard2.1/FlyShared.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

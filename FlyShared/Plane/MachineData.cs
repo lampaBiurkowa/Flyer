@@ -15,9 +15,9 @@ namespace Shared.Plane
         public GenericSurfaceData Slat {get; private set;}
         public GenericSurfaceData Wing {get; private set;}
         public List<Tuple<EngineData, Localization>> Engines {get; private set;}
-        public Vector2 Left {get; private set;}
-        public Vector2 Right {get; private set;}
-        public Vector2 Tail {get; private set;}
+        public Vector2F Left {get; private set;}
+        public Vector2F Right {get; private set;}
+        public Vector2F Tail {get; private set;}
         public float Length {get; private set;}
         public float Mass {get; private set;}
 
@@ -35,9 +35,9 @@ namespace Shared.Plane
             Engines = engines;
             Length = length;
             Mass = mass;
-            Left = new Vector2(Wing.LiftSurface / 2, 0);
-            Right = new Vector2(-Wing.LiftSurface / 2, 0);
-            Tail = new Vector2(0, Length);
+            Left = new Vector2F(Wing.LiftSurface / 2, 0);
+            Right = new Vector2F(-Wing.LiftSurface / 2, 0);
+            Tail = new Vector2F(0, Length);
         }
     }
 }

@@ -66,6 +66,58 @@ public class Cockpit : Control
 		enginePanels.Add((EnginePanel)GetNode("Engine2Panel"));
 	}
 
+	public void Update(PlanePhysics data, float delta, WindPhysics windPhysics, float weight, float totalLift, float leftLift, float rightLift)
+	{
+		SetSpeed(data);//.GetAirspeed()
+		SetLift(totalLift, leftLift, rightLift);
+		SetAltitude(data.Plane.Flight.Altitude);
+		SetWeight(-weight * delta);
+
+		Tuple<float, float> aLift = new Tuple<float, float>(data.GetPartLift(data.Plane.Configuration.LeftAileron, windPhysics), data.GetPartLift(data.Plane.Configuration.RightAileron, windPhysics));
+		Tuple<float, float> aDrag = new Tuple<float, float>(data.GetPartDrag(data.Plane.Configuration.LeftAileron, windPhysics), data.GetPartDrag(data.Plane.Configuration.RightAileron, windPhysics));
+		Tuple<float, float> aSide = new Tuple<float, float>(data.GetPartSide(data.Plane.Configuration.LeftAileron, windPhysics), data.GetPartSide(data.Plane.Configuration.RightAileron, windPhysics));
+		SetAilerons(aLift, aDrag, aSide);
+
+		Tuple<float, float> fLift = new Tuple<float, float>(data.GetPartLift(data.Plane.Configuration.LeftFlap, windPhysics), data.GetPartLift(data.Plane.Configuration.RightFlap, windPhysics));
+		Tuple<float, float> fDrag = new Tuple<float, float>(data.GetPartDrag(data.Plane.Configuration.LeftFlap, windPhysics), data.GetPartDrag(data.Plane.Configuration.RightFlap, windPhysics));
+		Tuple<float, float> fSide = new Tuple<float, float>(data.GetPartSide(data.Plane.Configuration.LeftFlap, windPhysics), data.GetPartSide(data.Plane.Configuration.RightFlap, windPhysics));
+		SetFlaps(data.Plane.Configuration.LeftFlap.CurrentConfiguration,fLift, fDrag, fSide);
+
+		Tuple<float, float> sLift = new Tuple<float, float>(data.GetPartLift(data.Plane.Configuration.LeftSlat, windPhysics), data.GetPartLift(data.Plane.Configuration.RightSlat, windPhysics));
+		Tuple<float, float> sDrag = new Tuple<float, float>(data.GetPartDrag(data.Plane.Configuration.LeftSlat, windPhysics), data.GetPartDrag(data.Plane.Configuration.RightSlat, windPhysics));
+		Tuple<float, float> sSide = new Tuple<float, float>(data.GetPartSide(data.Plane.Configuration.LeftSlat, windPhysics), data.GetPartSide(data.Plane.Configuration.RightSlat, windPhysics));
+		SetSlats(data.Plane.Configuration.LeftSlat.Enabled, sLift, sDrag, sSide);
+
+		Tuple<float, float> wLift = new Tuple<float, float>(data.GetPartLift(data.Plane.Configuration.LeftWing, windPhysics), data.GetPartLift(data.Plane.Configuration.LeftWing, windPhysics));
+		Tuple<float, float> wDrag = new Tuple<float, float>(data.GetPartDrag(data.Plane.Configuration.RightWing, windPhysics), data.GetPartDrag(data.Plane.Configuration.RightWing, windPhysics));
+		Tuple<float, float> wSide = new Tuple<float, float>(data.GetPartSide(data.Plane.Configuration.LeftWing, windPhysics), data.GetPartSide(data.Plane.Configuration.RightWing, windPhysics));
+		SetWings(wLift, wDrag, wSide);
+
+		float rLift = data.GetPartLift(data.Plane.Configuration.Rudder, windPhysics);
+		float rDrag = data.GetPartDrag(data.Plane.Configuration.Rudder, windPhysics);
+		float rSide = data.GetPartSide(data.Plane.Configuration.Rudder, windPhysics);
+		SetRudder(rLift, rDrag, rSide);
+
+		float eLift = data.GetPartLift(data.Plane.Configuration.Elevator, windPhysics);
+		float eDrag = data.GetPartDrag(data.Plane.Configuration.Elevator, windPhysics);
+		float eSide = data.GetPartSide(data.Plane.Configuration.Elevator, windPhysics);
+		SetElevator(eLift, eDrag, eSide);
+
+		float gLift = data.GetPartLift(data.Plane.Configuration.Gear, windPhysics);
+		float gDrag = data.GetPartDrag(data.Plane.Configuration.Gear, windPhysics);
+		float gSide = data.GetPartSide(data.Plane.Configuration.Gear, windPhysics);
+		SetGear(data.Plane.Configuration.Gear.Enabled, gLift, gDrag, gSide);
+
+		SetPitch((float)GeoLib.GameMath.RadToDeg(data.Plane.Flight.Pitch));
+		SetRoll((float)GeoLib.GameMath.RadToDeg(data.Plane.Flight.Roll));
+		SetYaw((float)GeoLib.GameMath.RadToDeg(data.Plane.Flight.Yaw));
+
+		SetAH((float)GeoLib.GameMath.RadToDeg(data.Plane.Flight.Pitch), (float)GeoLib.GameMath.RadToDeg(data.Plane.Flight.Roll));
+		SetMinimap(data.Plane.Flight.Position.X, data.Plane.Flight.Position.Z, (float)GeoLib.GameMath.RadToDeg(data.Plane.Flight.Yaw));
+		SetTurnCoordinator((float)GeoLib.GameMath.RadToDeg(data.Plane.Flight.Yaw), (float)GeoLib.GameMath.RadToDeg(data.Plane.Flight.Roll));
+	}
+
+
 	public void SetEngines(List<Tuple<float, float, float>> thrust, float maxThrust)
 	{
 		if (enginesLabel == null)
@@ -167,10 +219,10 @@ public class Cockpit : Control
 		if (speedLabel == null)
 			return;
 			
-		speedLabel.Text = $"{p.GetAirspeed()} x {p.FlightData.Speed.X} y {p.FlightData.Speed.Y} z {p.FlightData.Speed.Z}";
+		speedLabel.Text = $"{p.GetAirspeed()} x {p.Plane.Flight.Speed.X} y {p.Plane.Flight.Speed.Y} z {p.Plane.Flight.Speed.Z}";
 	
 		basicT.SetAirspeed(p.GetAirspeed());
-		basicT.SetVerticalSpeed((float)p.FlightData.Speed.Y);
+		basicT.SetVerticalSpeed(p.Plane.Flight.Speed.Y);
 	}
 
 	public void SetWeight(float weight)

@@ -7,7 +7,7 @@ namespace ClientCore.Physics.PlaneParts
     {
         GenericSurfaceData data;
 
-        public Wing(Vector2 offset, GenericSurfaceData data) : base(offset)
+        public Wing(Vector2F offset, GenericSurfaceData data) : base(offset)
         {
             this.data = data;
         }

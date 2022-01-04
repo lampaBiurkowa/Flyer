@@ -34,7 +34,7 @@ namespace ClientCore.Physics.PlaneParts
         const float STEP = 100f;
         const float MAX_ANGLE = 30f;
 
-        public Aileron(Vector2 offset, GenericSurfaceData data) : base(offset)
+        public Aileron(Vector2F offset, GenericSurfaceData data) : base(offset)
         {
             this.data = data;
         }
@@ -62,9 +62,9 @@ namespace ClientCore.Physics.PlaneParts
             AngleDegrees = 0;
         }
 
-        public float GetLiftSurface() => data.LiftSurface * (float)Math.Sin(angleRadians);
+        public float GetLiftSurface() => data.LiftSurface * MathF.Sin(angleRadians);
 
-        public float GetDragSurface() => 0;//GetLiftSurface() * data.LiftSurface * (float)Math.Cos(angleRadians) * 0.2f;//* 0.1f; //risk
+        public float GetDragSurface() => 0;
 
         public float GetSideSurface() => 0;
     }

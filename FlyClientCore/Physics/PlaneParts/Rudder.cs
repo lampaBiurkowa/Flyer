@@ -34,7 +34,7 @@ namespace ClientCore.Physics.PlaneParts
         public const float STEP = 100f;
         public float accelerationDegrees = 0;
 
-        public Rudder(Vector2 offset, GenericSurfaceData data) : base(offset)
+        public Rudder(Vector2F offset, GenericSurfaceData data) : base(offset)
         {
             this.data = data;
         }

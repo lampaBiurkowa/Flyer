@@ -14,7 +14,7 @@ namespace ClientCore.Cockpit
 
         public float GetAngleForYaw(float yaw)
         {
-            yaw *= (float)Math.Pow(10, PRECISION);
+            yaw *= MathF.Pow(10, PRECISION);
             return yaw * anglePerUnit;
         }
     }

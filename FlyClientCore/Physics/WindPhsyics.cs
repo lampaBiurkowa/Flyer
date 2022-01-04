@@ -9,17 +9,17 @@ namespace ClientCore.Physics
         const float DENSITY_MIN = 0.24f; //kg/m^3
         const int MAX_HEIGHT = 13700; //m
 
-        public Vector3 Direction {get; set;}
-        public Vector3 Speed {get; set;}
+        public Vector3F Direction {get; set;}
+        public Vector3F Speed {get; set;}
         public float GetDensity(int height)
         {
             MathLine line = new MathLine(new Vector2(0, DENSITY_MAX), new Vector2(MAX_HEIGHT, DENSITY_MIN));
             return (float)line.ValueAt(height);
         }
 
-        public Vector3 GetSpeed() => Speed; //??
+        public Vector3F GetSpeed() => Speed; //??
 
-        public Vector2 GetRelativeSpeedAdjusted(IMoveable moveable)
+        public Vector2F GetRelativeSpeedAdjusted(IMoveable moveable)
         {
             float secondPosFactor = 1.1f; //can be set to anything close to 1.0f (but greater)
             Vector2 moveableFakePosition = new Vector2(moveable.Direction.X, moveable.Direction.Y);
@@ -32,7 +32,7 @@ namespace ClientCore.Physics
                 crossAngle -= 180;
             float xRelative = (float)(Math.Sin(crossAngle) * moveableLength * Speed.X);
             float yRelative = (float)(Math.Cos(crossAngle) * moveableLength * Speed.Y);
-            return new Vector2(xRelative, yRelative);
+            return new Vector2F(xRelative, yRelative);
         }
     }
 }

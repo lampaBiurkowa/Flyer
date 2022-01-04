@@ -27,7 +27,7 @@ namespace ClientCore.Cockpit
             return scale * MAX_ANGLE;
         }
 
-        public Vector2 GetBubblePosition(float yaw, float roll)
+        public Vector2F GetBubblePosition(float yaw, float roll)
         {
             if (roll > 0)
                 yaw *= -1;
@@ -40,7 +40,7 @@ namespace ClientCore.Cockpit
             float scale = yaw / MAX_BUBBLE_YAW;
             float x = scale * (BAR_LENGTH / 2);
             float y = MathF.Abs(x) < (BAR_FLAT_LENGTH / 2) ? 0 : -(x - BAR_FLAT_LENGTH / 2) / BAR_HEIGHT;
-            return new Vector2(x, y);
+            return new Vector2F(x, y);
         }
     }
 }
