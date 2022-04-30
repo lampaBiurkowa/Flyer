@@ -1,10 +1,11 @@
 # Flight app
 
-That's a bit of a fun app made in the winter. The aim was to create a quite realistic 3d flight simulator (godot engine). The plane data would be adjusted (affecting sizes of the elements, amount of engines, engines power etc). While the results didn't provide realistic control, the plane is flyable. 
+That's a bit of a fun app made in the winter. The aim was to create a quite realistic 3d flight simulator (godot engine). The plane data would be adjusted (affecting sizes of the elements, amount of engines, engines power etc).
+While the results didn't provide realistic control, the plane was flyable and some conclusions where drawn.
 
 # How it was meant to work - flying
 
-After making quite a lot of reasearch about aviaticks (really substantial amount of project time spent on it) I've managed to figure out how to make plane flyable from Phsyics point of view. This is important to note that I'd started with simplified equations and then I wad gradually adding more factors (well, and corrected some initial equations - not everyone of them was correct :D).
+After making quite a lot of reasearch about aviatics (really substantial amount of project time spent on it) I've managed to figure out how to make plane flyable from Phsyics point of view. This is important to note that I'd started with simplified equations and then I wad gradually adding more factors (well, and corrected some initial equations - not everyone of them was correct :D).
 
 I assumed that with those equations I'd be able to develop a quite realistic simullator - I reproduced aerodynamic-significant parts (like wings, ailerons, slats, stabilizers etc.) and wrote keyboard-based control to them.
 ## Well, the results...
